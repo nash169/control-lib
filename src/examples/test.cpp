@@ -5,35 +5,37 @@ using namespace libcontrol;
 
 int main(int argc, char const* argv[])
 {
-    // size_t dim = 9;
-    // Eigen::VectorXd vec = Eigen::VectorXd::Random(36);
+    size_t dim = 9;
+    Eigen::VectorXd vec1 = Eigen::VectorXd::Random(36), vec2 = Eigen::VectorXd::Random(36);
 
-    // ControlState state(dim, ControlSpace::LINEAR | ControlSpace::ANGLEAXIS);
+    ControlState state1(dim, ControlSpace::LINEAR | ControlSpace::ANGLEAXIS);
+    ControlState state2(dim, ControlSpace::LINEAR | ControlSpace::ANGLEAXIS);
 
-    // state.setState(vec);
+    state1.setState(vec1);
+    state2.setState(vec2);
 
-    // std::cout << "Generalized state" << std::endl;
-    // std::cout << vec.transpose() << std::endl;
+    auto test = state1 - state2;
 
-    // std::cout << "Generalized pose" << std::endl;
-    // std::cout << state._pose->transpose() << std::endl;
+    // std::cout << "Generalized state1" << std::endl;
+    // std::cout << vec1.transpose() << std::endl;
 
-    // std::cout << "Generalized orientation" << std::endl;
-    // std::cout << state._orientation->transpose() << std::endl;
+    std::cout << "Generalized pose" << std::endl;
+    std::cout << test->_pose->transpose() << std::endl;
 
-    // std::cout << "Generalized coordinate" << std::endl;
-    // std::cout << state._coordinate->transpose() << std::endl;
+    std::cout << "Generalized orientation" << std::endl;
+    std::cout << test->_orientation->transpose() << std::endl;
 
-    // std::cout << "Generalized velocity" << std::endl;
-    // std::cout << state._velocity->transpose() << std::endl;
+    std::cout << "Generalized coordinate" << std::endl;
+    std::cout << test->_coordinate->transpose() << std::endl;
 
-    // std::cout << "Generalized acceleration" << std::endl;
-    // std::cout << state._acceleration->transpose() << std::endl;
+    std::cout << "Generalized velocity" << std::endl;
+    std::cout << test->_velocity->transpose() << std::endl;
 
-    // std::cout << "Generalized effort" << std::endl;
-    // std::cout << state._effort->transpose() << std::endl;
+    std::cout << "Generalized acceleration" << std::endl;
+    std::cout << test->_acceleration->transpose() << std::endl;
 
-    // auto test = state._velocity - state._acceleration;
+    std::cout << "Generalized effort" << std::endl;
+    std::cout << test->_effort->transpose() << std::endl;
 
     return 0;
 }

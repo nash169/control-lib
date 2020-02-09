@@ -34,22 +34,22 @@ namespace libcontrol {
             // This might change if we integrate the delay inside the controller
             _output.setZero();
 
-            ControlState error_prev; //= *(_error.get());
+            auto error_prev = _error->getPos();
 
             // This should be speeded up using the information from the reference
             setInput(state);
 
-            // _error = std::make_unique<ControlState>(*(_input.get()) - *(_reference.get()));
+            _error = *_input - *_reference;
 
             if (_gains.p_matrix != nullptr)
-                _output = -*(_gains.p_matrix.get()) * _error->getPos();
+                _output = -*_gains.p_matrix * _error->getPos();
 
             if (_gains.d_matrix != nullptr)
-                _output = -*(_gains.d_matrix.get()) * _error->getVel();
+                _output = -*_gains.d_matrix * _error->getVel();
 
             if (_gains.i_matrix != nullptr) {
-                _integral_error += (error_prev.getPos() + _error->getPos()) * _time_step / 2;
-                _output = -*(_gains.i_matrix.get()) * _integral_error;
+                _integral_error += (error_prev + _error->getPos()) * _time_step / 2;
+                _output = -*_gains.i_matrix * _integral_error;
             }
 
             return _output;

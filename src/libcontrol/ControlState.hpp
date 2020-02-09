@@ -28,35 +28,39 @@ namespace libcontrol {
 
         ~ControlState() {}
 
-        ControlState operator-(ControlState const& obj)
+        std::unique_ptr<ControlState> operator-(ControlState const& obj)
         {
             // Here goes some check of dimension and type
-            ControlState state;
+            std::unique_ptr<ControlState> state = std::make_unique<ControlState>(this->getDim(), this->getType());
 
             if (this->_pose != nullptr)
-                state._pose = std::make_unique<Eigen::VectorXd>(*(this->_pose.get()) - *(obj._pose.get()));
+                state->_pose = std::make_unique<Eigen::VectorXd>(*this->_pose - *obj._pose);
 
             if (this->_orientation != nullptr) {
                 if (this->_type & ControlSpace::EULERANGLE)
-                    state._orientation = std::make_unique<Eigen::VectorXd>(utils::euler_error(*(this->_orientation.get()), *(obj._orientation.get())));
+                    state->_orientation = std::make_unique<Eigen::VectorXd>(utils::euler_error(*this->_orientation, *obj._orientation));
                 else if (this->_type & ControlSpace::ANGLEAXIS)
-                    state._orientation = std::make_unique<Eigen::VectorXd>(utils::rotation_error(*(this->_orientation.get()), *(obj._orientation.get())));
+                    state->_orientation = std::make_unique<Eigen::VectorXd>(utils::rotation_error(*this->_orientation, *obj._orientation));
                 else if (this->_type & ControlSpace::QUATERNION)
-                    state._orientation = std::make_unique<Eigen::VectorXd>(utils::quaternion_error(*(this->_orientation.get()), *(obj._orientation.get())));
+                    state->_orientation = std::make_unique<Eigen::VectorXd>(utils::quaternion_error(*this->_orientation, *obj._orientation));
             }
 
             if (this->_coordinate != nullptr)
-                state._coordinate = std::make_unique<Eigen::VectorXd>(*(this->_coordinate.get()) - *(obj._coordinate.get()));
+                state->_coordinate = std::make_unique<Eigen::VectorXd>(*this->_coordinate - *obj._coordinate);
 
             if (this->_velocity != nullptr)
-                state._velocity = std::make_unique<Eigen::VectorXd>(*(this->_velocity.get()) - *(obj._velocity.get()));
+                state->_velocity = std::make_unique<Eigen::VectorXd>(*this->_velocity - *obj._velocity);
 
             if (this->_acceleration != nullptr)
-                state._acceleration = std::make_unique<Eigen::VectorXd>(*(this->_acceleration.get()) - *(obj._acceleration.get()));
+                state->_acceleration = std::make_unique<Eigen::VectorXd>(*this->_acceleration - *obj._acceleration);
 
             if (this->_effort != nullptr)
-                state._effort = std::make_unique<Eigen::VectorXd>(*(this->_effort.get()) - *(obj._effort.get()));
+                state->_effort = std::make_unique<Eigen::VectorXd>(*this->_effort - *obj._effort);
+
+            return state;
         }
+
+        size_t getDim() const { return _dim; }
 
         ControlSpaces getType() const { return _type; }
 
@@ -67,13 +71,10 @@ namespace libcontrol {
 
             // Assign coordinates (assume coordinates always present.. to change)
             if (_type & ControlSpace::LINEAR) {
-                std::cout << "linear" << std::endl;
                 // Check the presence of orientation
                 if (_type & ControlSpace::ORIENTATION) {
-                    std::cout << "orientation" << std::endl;
                     // Check presence of quaternions
                     if (_type & ControlSpace::QUATERNION) {
-                        std::cout << "quaternion" << std::endl;
                         // First 3 entries pose and last 4 orientation
                         _pose = std::make_unique<Eigen::VectorXd>(state.head(3));
                         _orientation = std::make_unique<Eigen::VectorXd>(state.segment(3, 4));
@@ -85,7 +86,6 @@ namespace libcontrol {
                         dof -= 1;
                     }
                     else {
-                        std::cout << "not quaternion" << std::endl;
                         // First 3 entries pose and last 3 orientation
                         _pose = std::make_unique<Eigen::VectorXd>(state.head(3));
                         _orientation = std::make_unique<Eigen::VectorXd>(state.segment(3, 3));
@@ -148,24 +148,24 @@ namespace libcontrol {
                 dim += _coordinate->size();
 
             Eigen::VectorXd pos(dim);
-            pos << *(_pose.get()), *(_orientation.get()), *(_coordinate.get());
+            pos << *_pose, *_orientation, *_coordinate;
 
             return pos;
         }
 
         const Eigen::VectorXd& getVel()
         {
-            return *(_velocity.get());
+            return *_velocity;
         }
 
         const Eigen::VectorXd& getAcc()
         {
-            return *(_acceleration.get());
+            return *_acceleration;
         }
 
         const Eigen::VectorXd& getEff()
         {
-            return *(_effort.get());
+            return *_effort;
         }
 
         std::unique_ptr<Eigen::VectorXd> _pose, // Rigid body pose
