@@ -1,8 +1,7 @@
 #ifndef LIBCONTROL_ABSTRACTCONTROLLER_HPP
 #define LIBCONTROL_ABSTRACTCONTROLLER_HPP
 
-#include <Eigen/Geometry>
-#include <vector>
+#include <memory>
 
 #include "libcontrol/ControlState.hpp"
 #include "libcontrol/utils/math.hpp"
@@ -12,8 +11,12 @@ namespace libcontrol {
     public:
         AbstractController(ControlSpaces type, const size_t input_dim, const size_t output_dim, const double time_step = 0.01) : _output_dim(output_dim), _time_step(time_step)
         {
+            // Init input and reference
             _input = std::unique_ptr<ControlState>(new ControlState(input_dim, type));
             _reference = std::unique_ptr<ControlState>(new ControlState(input_dim, type));
+
+            // Init output
+            _output = Eigen::VectorXd::Zero(output_dim);
         }
 
         AbstractController() {}

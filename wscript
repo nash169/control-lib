@@ -21,8 +21,10 @@ def options(opt):
     opt.load("corrade", tooldir="waf_tools")
 
     # Add options
-    opt.add_option("--shared", action="store_true", help="build shared library")
-    opt.add_option("--static", action="store_true", help="build static library")
+    opt.add_option("--shared", action="store_true",
+                   help="build shared library")
+    opt.add_option("--static", action="store_true",
+                   help="build static library")
     opt.add_option(
         "--no-avx",
         action="store_true",
@@ -53,18 +55,18 @@ def configure(cfg):
 
     # Compiler flags
     if cfg.env.CXX_NAME in ["icc", "icpc"]:
-        common_flags = "-Wall -std=c++14"
+        common_flags = "-Wall -std=c++17"
         opt_flags = " -O3 -xHost -mtune=native -unroll -g"
     elif cfg.env.CXX_NAME in ["clang"]:
-        common_flags = "-Wall -std=c++14"
+        common_flags = "-Wall -std=c++17"
         opt_flags = " -O3 -march=native -g -faligned-new"
     else:
         gcc_version = int(cfg.env["CC_VERSION"][0] + cfg.env["CC_VERSION"][1])
-        if gcc_version < 47:
+        if gcc_version < 70:
             common_flags = "-Wall -std=c++0x"
-            # cfg.fatal("Compiler should support C++14")
+            cfg.fatal("Compiler should support C++17")
         else:
-            common_flags = "-Wall -std=c++14"
+            common_flags = "-Wall -std=c++17"
         opt_flags = " -O3 -march=native -g"
         if gcc_version >= 71:
             opt_flags = opt_flags + " -faligned-new"
@@ -98,7 +100,7 @@ def build(bld):
         for filename in fnmatch.filter(filenames, "*.cpp"):
             files.append(os.path.join(root, filename))
 
-    files = [f[len(bld.path.abspath()) + 1 :] for f in files]
+    files = [f[len(bld.path.abspath()) + 1:] for f in files]
     libcontrol_srcs = " ".join(files)
 
     # Build library
@@ -138,7 +140,7 @@ def build(bld):
     for root, dirnames, filenames in os.walk(bld.path.abspath() + "/src/"):
         for filename in fnmatch.filter(filenames, "*.hpp"):
             install_files.append(os.path.join(root, filename))
-    install_files = [f[len(bld.path.abspath()) + 1 :] for f in install_files]
+    install_files = [f[len(bld.path.abspath()) + 1:] for f in install_files]
 
     # Install headers
     for f in install_files:
