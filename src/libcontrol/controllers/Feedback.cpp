@@ -6,6 +6,7 @@ namespace libcontrol {
         {
             // This might be moved in the abstract class
             _error = std::unique_ptr<ControlState>(new ControlState(input_dim, type));
+            _output = Eigen::VectorXd::Zero(input_dim);
 
             // Init integral error
             _integral_error = Eigen::VectorXd::Zero(input_dim);
@@ -42,14 +43,14 @@ namespace libcontrol {
             _error = *_input - *_reference;
 
             if (_gains.p_matrix != nullptr)
-                _output = -*_gains.p_matrix * _error->getPos();
+                _output += -*_gains.p_matrix * _error->getPos();
 
             if (_gains.d_matrix != nullptr)
-                _output = -*_gains.d_matrix * _error->getVel();
+                _output += -*_gains.d_matrix * _error->getVel();
 
             if (_gains.i_matrix != nullptr) {
                 _integral_error += (error_prev + _error->getPos()) * _time_step / 2;
-                _output = -*_gains.i_matrix * _integral_error;
+                _output += -*_gains.i_matrix * _integral_error;
             }
 
             return _output;

@@ -148,7 +148,16 @@ namespace libcontrol {
                 dim += _coordinate->size();
 
             Eigen::VectorXd pos(dim);
-            pos << *_pose, *_orientation, *_coordinate;
+            // pos << *_pose, *_orientation, *_coordinate;
+            int curr_index = 0;
+            if (_pose) {
+                pos.head(_pose->size()) = *_pose;
+                curr_index += _pose->size();
+            }
+            if (_orientation)
+                pos.segment(curr_index, _orientation->size()) = *_orientation;
+            if (_coordinate)
+                pos.tail(_coordinate->size()) = *_coordinate;
 
             return pos;
         }
