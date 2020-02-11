@@ -1,11 +1,9 @@
 #ifndef LIBCONTROL_CONTROLSTATE_HPP
 #define LIBCONTROL_CONTROLSTATE_HPP
 
-#include <Eigen/Core>
-
 #include <Corrade/Containers/EnumSet.h>
 
-#include <libcontrol/utils/math.hpp>
+#include "libcontrol/utils/math.hpp"
 
 namespace libcontrol {
 
@@ -27,42 +25,6 @@ namespace libcontrol {
         ControlState() {}
 
         ~ControlState() {}
-
-        ControlState operator-(ControlState const& obj)
-        {
-            // Here goes some check of dimension and type
-            ControlState state(this->getDim(), this->getType());
-
-            if (this->_pose.size())
-                state._pose = this->_pose - obj._pose;
-
-            if (this->_orientation.size()) {
-                if (this->_type & ControlSpace::EULERANGLE)
-                    state._orientation = utils::euler_error(this->_orientation, obj._orientation);
-                else if (this->_type & ControlSpace::ANGLEAXIS)
-                    state._orientation = utils::rotation_error(this->_orientation, obj._orientation);
-                else if (this->_type & ControlSpace::QUATERNION)
-                    state._orientation = utils::quaternion_error(this->_orientation, obj._orientation);
-            }
-
-            if (this->_coordinate.size())
-                state._coordinate = this->_coordinate - obj._coordinate;
-
-            if (this->_velocity.size())
-                state._velocity = this->_velocity - obj._velocity;
-
-            if (this->_acceleration.size())
-                state._acceleration = this->_acceleration - obj._acceleration;
-
-            if (this->_effort.size())
-                state._effort = this->_effort - obj._effort;
-
-            return state;
-        }
-
-        size_t getDim() const { return _dim; }
-
-        ControlSpaces getType() const { return _type; }
 
         // Find a better name for this (and pass ref)
         Eigen::VectorXd getPos()
@@ -162,6 +124,39 @@ namespace libcontrol {
         {
         }
 
+        ControlState operator-(ControlState const& obj)
+        {
+            // Here goes some check of dimension and type
+            ControlState state(this->_dim, this->_type);
+
+            if (this->_pose.size())
+                state._pose = this->_pose - obj._pose;
+
+            if (this->_orientation.size()) {
+                if (this->_type & ControlSpace::EULERANGLE)
+                    state._orientation = utils::euler_error(this->_orientation, obj._orientation);
+                else if (this->_type & ControlSpace::ANGLEAXIS)
+                    state._orientation = utils::rotation_error(this->_orientation, obj._orientation);
+                else if (this->_type & ControlSpace::QUATERNION)
+                    state._orientation = utils::quaternion_error(this->_orientation, obj._orientation);
+            }
+
+            if (this->_coordinate.size())
+                state._coordinate = this->_coordinate - obj._coordinate;
+
+            if (this->_velocity.size())
+                state._velocity = this->_velocity - obj._velocity;
+
+            if (this->_acceleration.size())
+                state._acceleration = this->_acceleration - obj._acceleration;
+
+            if (this->_effort.size())
+                state._effort = this->_effort - obj._effort;
+
+            return state;
+        }
+
+        // Variables
         Eigen::VectorXd _pose, // Rigid body pose
             _orientation, // Rigid body orientation
             _coordinate, // Coordinates
@@ -169,9 +164,9 @@ namespace libcontrol {
             _acceleration, // Linear & Angular acceleration
             _effort; // force & torque
 
-    private:
         // Space type
         ControlSpaces _type;
+
         // Coordinate space dimension
         size_t _dim;
     };

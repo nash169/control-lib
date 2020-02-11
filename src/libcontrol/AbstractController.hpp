@@ -1,8 +1,8 @@
 #ifndef LIBCONTROL_ABSTRACTCONTROLLER_HPP
 #define LIBCONTROL_ABSTRACTCONTROLLER_HPP
 
-#include <libcontrol/ControlState.hpp>
-#include <libcontrol/utils/math.hpp>
+#include "libcontrol/ControlState.hpp"
+#include "libcontrol/utils/math.hpp"
 
 namespace libcontrol {
     class AbstractController {

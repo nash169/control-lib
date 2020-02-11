@@ -1,22 +1,10 @@
-#include <Corrade/Containers/Optional.h>
 #include <iostream>
 #include <libcontrol/AbstractController.hpp>
 
 using namespace libcontrol;
-// using namespace Corrade;
 
 int main(int argc, char const* argv[])
 {
-    // Eigen::VectorXd x(3);
-    // x << 1, 2, 3;
-
-    // std::optional<Eigen::VectorXd> b;
-    // b = x;
-    // Corrade::Containers::Optional<Eigen::VectorXd> a;
-    // a = x;
-
-    // std::cout << a->transpose() << std::endl;
-
     size_t dim = 9;
     Eigen::VectorXd vec1 = Eigen::VectorXd::Random(36), vec2 = Eigen::VectorXd::Random(36);
 

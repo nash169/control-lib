@@ -1,7 +1,7 @@
 #ifndef LIBCONTROL_CONTROLLERS_FEEDBACK_HPP
 #define LIBCONTROL_CONTROLLERS_FEEDBACK_HPP
 
-#include <libcontrol/AbstractController.hpp>
+#include "libcontrol/AbstractController.hpp"
 
 namespace libcontrol {
     namespace controllers {
