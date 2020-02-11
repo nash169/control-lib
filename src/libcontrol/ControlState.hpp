@@ -1,9 +1,11 @@
 #ifndef LIBCONTROL_CONTROLSTATE_HPP
 #define LIBCONTROL_CONTROLSTATE_HPP
 
+#include <Eigen/Core>
+
 #include <Corrade/Containers/EnumSet.h>
 
-#include "libcontrol/utils/math.hpp"
+#include <libcontrol/utils/math.hpp>
 
 namespace libcontrol {
 
@@ -31,29 +33,29 @@ namespace libcontrol {
             // Here goes some check of dimension and type
             ControlState state(this->getDim(), this->getType());
 
-            if (this->_pose.has_value())
-                state._pose = this->_pose.value() - obj._pose.value();
+            if (this->_pose.size())
+                state._pose = this->_pose - obj._pose;
 
-            if (this->_orientation.has_value()) {
+            if (this->_orientation.size()) {
                 if (this->_type & ControlSpace::EULERANGLE)
-                    state._orientation = utils::euler_error(this->_orientation.value(), obj._orientation.value());
+                    state._orientation = utils::euler_error(this->_orientation, obj._orientation);
                 else if (this->_type & ControlSpace::ANGLEAXIS)
-                    state._orientation = utils::rotation_error(this->_orientation.value(), obj._orientation.value());
+                    state._orientation = utils::rotation_error(this->_orientation, obj._orientation);
                 else if (this->_type & ControlSpace::QUATERNION)
-                    state._orientation.value() = utils::quaternion_error(this->_orientation.value(), obj._orientation.value());
+                    state._orientation = utils::quaternion_error(this->_orientation, obj._orientation);
             }
 
-            if (this->_coordinate.has_value())
-                state._coordinate = this->_coordinate.value() - obj._coordinate.value();
+            if (this->_coordinate.size())
+                state._coordinate = this->_coordinate - obj._coordinate;
 
-            if (this->_velocity.has_value())
-                state._velocity = this->_velocity.value() - obj._velocity.value();
+            if (this->_velocity.size())
+                state._velocity = this->_velocity - obj._velocity;
 
-            if (this->_acceleration.has_value())
-                state._acceleration = this->_acceleration.value() - obj._acceleration.value();
+            if (this->_acceleration.size())
+                state._acceleration = this->_acceleration - obj._acceleration;
 
-            if (this->_effort.has_value())
-                state._effort = this->_effort.value() - obj._effort.value();
+            if (this->_effort.size())
+                state._effort = this->_effort - obj._effort;
 
             return state;
         }
@@ -67,26 +69,26 @@ namespace libcontrol {
         {
             size_t dim = 0;
 
-            if (_pose.has_value())
-                dim += _pose->size();
+            if (_pose.size())
+                dim += _pose.size();
 
-            if (_orientation.has_value())
-                dim += _orientation->size();
+            if (_orientation.size())
+                dim += _orientation.size();
 
-            if (_coordinate.has_value())
-                dim += _coordinate->size();
+            if (_coordinate.size())
+                dim += _coordinate.size();
 
             Eigen::VectorXd pos(dim);
 
             int curr_index = 0;
-            if (_pose.has_value()) {
-                pos.head(_pose->size()) = _pose.value();
-                curr_index += _pose->size();
+            if (_pose.size()) {
+                pos.head(_pose.size()) = _pose;
+                curr_index += _pose.size();
             }
-            if (_orientation.has_value())
-                pos.segment(curr_index, _orientation->size()) = _orientation.value();
-            if (_coordinate.has_value())
-                pos.tail(_coordinate->size()) = _coordinate.value();
+            if (_orientation.size())
+                pos.segment(curr_index, _orientation.size()) = _orientation;
+            if (_coordinate.size())
+                pos.tail(_coordinate.size()) = _coordinate;
 
             return pos;
         }
@@ -160,7 +162,7 @@ namespace libcontrol {
         {
         }
 
-        std::optional<Eigen::VectorXd> _pose, // Rigid body pose
+        Eigen::VectorXd _pose, // Rigid body pose
             _orientation, // Rigid body orientation
             _coordinate, // Coordinates
             _velocity, // Linear & Angular velocity

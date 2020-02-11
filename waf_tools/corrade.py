@@ -360,4 +360,4 @@ def corrade_add_static_plugin(bld, name, config_file, source, use='', uselib='',
 
 def configure(cfg):
     # Configuration
-    cfg.check_corrade(required=True)
+    cfg.check_corrade(components='PluginManager TestSuite', required=True)
