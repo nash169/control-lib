@@ -5,11 +5,11 @@
 
 namespace libcontrol {
     namespace utils {
-        Eigen::Vector3d euler_error(const Eigen::Vector3d& curr, const Eigen::Vector3d& ref)
+        inline Eigen::Vector3d euler_error(const Eigen::Vector3d& curr, const Eigen::Vector3d& ref)
         {
         }
 
-        Eigen::Vector3d rotation_error(const Eigen::Vector3d& curr, const Eigen::Vector3d& ref)
+        inline Eigen::Vector3d rotation_error(const Eigen::Vector3d& curr, const Eigen::Vector3d& ref)
         {
             Eigen::Matrix3d R_current = Eigen::AngleAxisd(curr.norm(), curr.normalized()).toRotationMatrix(),
                             R_desired = Eigen::AngleAxisd(ref.norm(), ref.normalized()).toRotationMatrix();
@@ -19,7 +19,7 @@ namespace libcontrol {
             return aa.axis() * aa.angle();
         }
 
-        Eigen::Vector4d quaternion_error(const Eigen::Vector4d& curr, const Eigen::Vector4d& ref)
+        inline Eigen::Vector4d quaternion_error(const Eigen::Vector4d& curr, const Eigen::Vector4d& ref)
         {
             Eigen::Quaterniond q_current = Eigen::Quaterniond(curr), q_desired = Eigen::Quaterniond(ref);
             return (q_current.inverse() * q_desired).coeffs();
