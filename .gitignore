@@ -37,6 +37,7 @@ build
 # Waf
 .waf*
 .lock-waf*
+waf
 
 # VSCode
 .vscode
