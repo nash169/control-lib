@@ -21,17 +21,10 @@ def options(opt):
     opt.load("corrade", tooldir="waf_tools")
 
     # Add options
-    opt.add_option("--shared", action="store_true", help="build shared library")
-    opt.add_option("--static", action="store_true", help="build static library")
-    opt.add_option(
-        "--no-avx",
-        action="store_true",
-        help="build without AVX flags",
-        dest="disable_avx",
-    )
-    opt.add_option(
-        "--tests", action="store_true", help="compile tests or not", dest="tests"
-    )
+    opt.add_option("--shared", action="store_true",
+                   help="build shared library")
+    opt.add_option("--static", action="store_true",
+                   help="build static library")
 
 
 def configure(cfg):
@@ -42,106 +35,65 @@ def configure(cfg):
     cfg.load("compiler_cxx")
     cfg.load("compiler_c")
 
+    # Load compiler flags
+    cfg.load("flags", tooldir="waf_tools")
+
     # Load tools configuration
     cfg.load("eigen", tooldir="waf_tools")
     cfg.load("corrade", tooldir="waf_tools")
 
     # Set lib type
-    cfg.env["lib_type"] = "cxxstlib"
     if cfg.options.shared:
         cfg.env["lib_type"] = "cxxshlib"
-
-    # Compiler flags
-    if cfg.env.CXX_NAME in ["icc", "icpc"]:
-        common_flags = "-Wall -std=c++11"
-        opt_flags = " -O3 -xHost -mtune=native -unroll -g"
-    elif cfg.env.CXX_NAME in ["clang"]:
-        common_flags = "-Wall -std=c++11"
-        opt_flags = " -O3 -march=native -g -faligned-new"
     else:
-        gcc_version = int(cfg.env["CC_VERSION"][0] + cfg.env["CC_VERSION"][1])
-        if gcc_version < 70:
-            common_flags = "-Wall -std=c++0x"
-            # cfg.fatal("Compiler should support C++11")
-        else:
-            common_flags = "-Wall -std=c++11"
-        opt_flags = " -O3 -march=native -g"
-        if gcc_version >= 71:
-            opt_flags = opt_flags + " -faligned-new"
-
-    all_flags = common_flags + opt_flags
-    cfg.env["CXXFLAGS"] = cfg.env["CXXFLAGS"] + all_flags.split(" ") + ["-w"]
+        cfg.env["lib_type"] = "cxxstlib"
 
 
 def build(bld):
-    # Check if all the libraries have been loaded correctly
-    if len(bld.env.INCLUDES_EIGEN) == 0:
-        bld.fatal("Some libraries were not found! Cannot proceed!")
-
     # Library name
-    libname = "Control"
-    bld.get_env()["libname"] = libname
+    bld.get_env()["libname"] = "Control"
 
-    # Define necessary includes
-    includes = "./src"
+    # Includes
+    includes = []
+    includes_path = "src"
+    for root, dirnames, filenames in os.walk(bld.path.abspath() + includes_path):
+        for filename in fnmatch.filter(filenames, "*.hpp"):
+            includes.append(os.path.join(root, filename))
+    includes = [f[len(bld.path.abspath()) + 1:] for f in includes]
 
-    # Define necessary libraries
-    libs = "EIGEN Corrade"
-    bld.get_env()["libs"] = libs
-
-    # Compiler flags
-    cxxflags = bld.get_env()["CXXFLAGS"]
-
-    # Get source files
-    files = []
-    for root, dirnames, filenames in os.walk(bld.path.abspath() + "/src/libcontrol/"):
+    # Sources
+    sources = []
+    sources_path = "src/libcontrol"
+    for root, dirnames, filenames in os.walk(bld.path.abspath() + sources_path):
         for filename in fnmatch.filter(filenames, "*.cpp"):
-            files.append(os.path.join(root, filename))
-
-    files = [f[len(bld.path.abspath()) + 1 :] for f in files]
-    libcontrol_srcs = " ".join(files)
+            sources.append(os.path.join(root, filename))
+    sources = " ".join([f[len(bld.path.abspath()) + 1:] for f in sources])
 
     # Build library
     if bld.options.shared:
         bld.shlib(
             features="cxx " + bld.env["lib_type"],
-            source=libcontrol_srcs,
-            target=libname,
-            includes=includes,
-            uselib=libs,
-            cxxxflags=cxxflags,
-        )
-    elif bld.options.static:
-        bld.stlib(
-            features="cxx " + bld.env["lib_type"],
-            source=libcontrol_srcs,
-            target=libname,
-            includes=includes,
-            uselib=libs,
-            cxxxflags=cxxflags,
+            source=sources,
+            target=bld.get_env()["libname"],
+            includes=includes_path,
+            uselib=bld.get_env()["libs"],
+            cxxxflags=bld.get_env()["CXXFLAGS"],
         )
     else:
         bld.stlib(
             features="cxx " + bld.env["lib_type"],
-            source=libcontrol_srcs,
-            target=libname,
-            includes=includes,
-            uselib=libs,
-            cxxxflags=cxxflags,
+            source=sources,
+            target=bld.get_env()["libname"],
+            includes=includes_path,
+            uselib=bld.get_env()["libs"],
+            cxxxflags=bld.get_env()["CXXFLAGS"],
         )
 
     # Build examples
     bld.recurse("./src/examples")
 
-    # Define headers to install
-    install_files = []
-    for root, dirnames, filenames in os.walk(bld.path.abspath() + "/src/"):
-        for filename in fnmatch.filter(filenames, "*.hpp"):
-            install_files.append(os.path.join(root, filename))
-    install_files = [f[len(bld.path.abspath()) + 1 :] for f in install_files]
-
     # Install headers
-    for f in install_files:
+    for f in includes:
         end_index = f.rfind("/")
         if end_index == -1:
             end_index = len(f)
@@ -149,8 +101,11 @@ def build(bld):
 
     # Install libraries
     if bld.env["lib_type"] == "cxxstlib":
-        bld.install_files("${PREFIX}/lib", blddir + "/lib" + libname + ".a")
+        bld.install_files(
+            "${PREFIX}/lib", blddir + "/lib" + bld.get_env()["libname"] + ".a"
+        )
     else:
         bld.install_files(
-            "${PREFIX}/lib", blddir + "/lib" + libname + "." + bld.env.SUFFIX
+            "${PREFIX}/lib",
+            blddir + "/lib" + bld.get_env()["libname"] + "." + bld.env.SUFFIX,
         )
