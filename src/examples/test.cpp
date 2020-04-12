@@ -1,4 +1,6 @@
-#include <control_lib/AbstractController.hpp>
+#include <control_lib/controllers/Feedback.hpp>
+#include <control_lib/controllers/Lqr.hpp>
+
 #include <iostream>
 
 using namespace control_lib;
