@@ -6,35 +6,25 @@ import fnmatch
 
 
 def build(bld):
-    # Flags
-    cxxflags = bld.get_env()["CXXFLAGS"]
-
-    path = bld.path.abspath() + "/../../rsc"
-
     # Includes
-    includes = ".."
-
-    # Libraries
-    libname = bld.env["libname"]
-    libs = bld.env["libs"]
+    includes_path = ".."
 
     # Get source files
-    examples_srcs = []
+    sources = []
     for root, dirnames, filenames in os.walk(bld.path.abspath()):
         for filename in fnmatch.filter(filenames, "*.cpp"):
-            examples_srcs.append(os.path.join(root, filename))
+            sources.append(os.path.join(root, filename))
 
-    examples_srcs = [f[len(bld.path.abspath()) + 1:] for f in examples_srcs]
+    sources = [f[len(bld.path.abspath()) + 1 :] for f in sources]
 
-    for example in examples_srcs:
+    for example in sources:
         bld.program(
             features="cxx",
             install_path=None,
             source=example,
-            includes=includes,
-            uselib=libs,
-            use=libname,
-            cxxflags=cxxflags +
-            ['-DEXAMPLE_ROBOT_RESOURCE_DIR="' + path + '"'],
+            includes=includes_path,
+            uselib=bld.env["libs"],
+            use=bld.env["libname"],
+            cxxflags=bld.get_env()["CXXFLAGS"],
             target=example[: len(example) - len(".cpp")],
         )

@@ -1,9 +1,9 @@
-#ifndef LIBCONTROL_CONTROLLERS_FEEDBACK_HPP
-#define LIBCONTROL_CONTROLLERS_FEEDBACK_HPP
+#ifndef CONTROLLIB_CONTROLLERS_FEEDBACK_HPP
+#define CONTROLLIB_CONTROLLERS_FEEDBACK_HPP
 
-#include "libcontrol/AbstractController.hpp"
+#include "control_lib/AbstractController.hpp"
 
-namespace libcontrol {
+namespace control_lib {
     namespace controllers {
         struct Gains {
             Eigen::MatrixXd p_matrix,
@@ -29,6 +29,6 @@ namespace libcontrol {
             Gains _gains;
         };
     } // namespace controllers
-} // namespace libcontrol
+} // namespace control_lib
 
-#endif // LIBCONTROL_CONTROLLERS_FEEDBACK_HPP
+#endif // CONTROLLIB_CONTROLLERS_FEEDBACK_HPP

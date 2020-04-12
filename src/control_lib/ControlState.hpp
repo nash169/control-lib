@@ -1,11 +1,11 @@
-#ifndef LIBCONTROL_CONTROLSTATE_HPP
-#define LIBCONTROL_CONTROLSTATE_HPP
+#ifndef CONTROLLIB_CONTROLSTATE_HPP
+#define CONTROLLIB_CONTROLSTATE_HPP
 
 #include <Corrade/Containers/EnumSet.h>
 
-#include "libcontrol/utils/math.hpp"
+#include "control_lib/utils/math.hpp"
 
-namespace libcontrol {
+namespace control_lib {
 
     // The control space defines how to measure distance between points
     enum class ControlSpace : unsigned int {
@@ -134,11 +134,11 @@ namespace libcontrol {
 
             if (this->_orientation.size()) {
                 if (this->_type & ControlSpace::EULERANGLE)
-                    state._orientation = utils::euler_error(this->_orientation, obj._orientation);
+                    state._orientation = utils::eulerError(this->_orientation, obj._orientation);
                 else if (this->_type & ControlSpace::ANGLEAXIS)
-                    state._orientation = utils::rotation_error(this->_orientation, obj._orientation);
+                    state._orientation = utils::rotationError(this->_orientation, obj._orientation);
                 else if (this->_type & ControlSpace::QUATERNION)
-                    state._orientation = utils::quaternion_error(this->_orientation, obj._orientation);
+                    state._orientation = utils::quaternionError(this->_orientation, obj._orientation);
             }
 
             if (this->_coordinate.size())
@@ -171,6 +171,6 @@ namespace libcontrol {
         size_t _dim;
     };
 
-} // namespace libcontrol
+} // namespace control_lib
 
-#endif // LIBCONTROL_CONTROLSTATE_HPP
+#endif // CONTROLLIB_CONTROLSTATE_HPP

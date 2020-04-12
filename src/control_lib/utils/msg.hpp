@@ -1,15 +1,15 @@
-#ifndef LIBCONTROL_UTILS_MSG_HPP
-#define LIBCONTROL_UTILS_MSG_HPP
+#ifndef CONTROLLIB_UTILS_MSG_HPP
+#define CONTROLLIB_UTILS_MSG_HPP
 
 #include <cstdlib>
 #include <exception>
 #include <iostream>
 
-#ifndef LIBCONTROL_SHOW_WARNINGS
-#define LIBCONTROL_SHOW_WARNINGS true
+#ifndef CONTROLLIB_SHOW_WARNINGS
+#define CONTROLLIB_SHOW_WARNINGS true
 #endif
 
-namespace libcontrol {
+namespace control_lib {
     namespace utils {
         class Assertion : public std::exception {
         public:
@@ -25,36 +25,36 @@ namespace libcontrol {
 
             std::string _make_message(const std::string& msg) const
             {
-                std::string message = "libcontrol assertion failed";
+                std::string message = "control-lib assertion failed";
                 if (msg != "")
                     message += ": '" + msg + "'";
                 return message;
             }
         };
     } // namespace utils
-} // namespace libcontrol
+} // namespace control_lib
 
-#define LIBCONTROL_WARNING(condition, message)                                   \
-    if (LIBCONTROL_SHOW_WARNINGS && (condition)) {                               \
-        std::cerr << "[libcontrol WARNING]: \"" << message << "\"" << std::endl; \
+#define CONTROLLIB_WARNING(condition, message)                                    \
+    if (CONTROLLIB_SHOW_WARNINGS && (condition)) {                                \
+        std::cerr << "[control-lib WARNING]: \"" << message << "\"" << std::endl; \
     }
 
-#define LIBCONTROL_ASSERT(condition, message, returnValue)                        \
-    do {                                                                          \
-        if (!(condition)) {                                                       \
-            std::cerr << "libcontrol assertion failed: " << message << std::endl; \
-            return returnValue;                                                   \
-        }                                                                         \
+#define CONTROLLIB_ASSERT(condition, message, returnValue)                         \
+    do {                                                                           \
+        if (!(condition)) {                                                        \
+            std::cerr << "control-lib assertion failed: " << message << std::endl; \
+            return returnValue;                                                    \
+        }                                                                          \
     } while (false)
 
-#define LIBCONTROL_EXCEPTION_ASSERT(condition, message) \
+#define CONTROLLIB_EXCEPTION_ASSERT(condition, message) \
     do {                                                \
         if (!(condition)) {                             \
-            throw LIBCONTROL::Assertion(message);       \
+            throw CONTROLLIB::Assertion(message);       \
         }                                               \
     } while (false)
 
-#define LIBCONTROL_INTERNAL_ASSERT(condition)                                                                                 \
+#define CONTROLLIB_INTERNAL_ASSERT(condition)                                                                                 \
     do {                                                                                                                      \
         if (!(condition)) {                                                                                                   \
             std::cerr << "Assertion '" << #condition << "' failed in '" << __FILE__ << "' on line " << __LINE__ << std::endl; \
@@ -62,11 +62,11 @@ namespace libcontrol {
         }                                                                                                                     \
     } while (false)
 
-#define LIBCONTROL_EXCEPTION_INTERNAL_ASSERT(condition) \
+#define CONTROLLIB_EXCEPTION_INTERNAL_ASSERT(condition) \
     do {                                                \
         if (!(condition)) {                             \
-            throw LIBCONTROL::Assertion(#condition);    \
+            throw CONTROLLIB::Assertion(#condition);    \
         }                                               \
     } while (false)
 
-#endif // LIBCONTROL_UTILS_MSG_HPP
+#endif // CONTROLLIB_UTILS_MSG_HPP

@@ -1,6 +1,6 @@
-#include "libcontrol/controllers/Feedback.hpp"
+#include "control_lib/controllers/Feedback.hpp"
 
-namespace libcontrol {
+namespace control_lib {
     namespace controllers {
         Feedback::Feedback(ControlSpaces type, const size_t input_dim, const size_t output_dim, const double time_step) : AbstractController(type, input_dim, output_dim, time_step)
         {
@@ -50,4 +50,4 @@ namespace libcontrol {
             return _output;
         }
     } // namespace controllers
-} // namespace libcontrol
+} // namespace control_lib

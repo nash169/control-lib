@@ -1,10 +1,10 @@
-#ifndef LIBCONTROL_ABSTRACTCONTROLLER_HPP
-#define LIBCONTROL_ABSTRACTCONTROLLER_HPP
+#ifndef CONTROLLIB_ABSTRACTCONTROLLER_HPP
+#define CONTROLLIB_ABSTRACTCONTROLLER_HPP
 
-#include "libcontrol/ControlState.hpp"
-#include "libcontrol/utils/math.hpp"
+#include "control_lib/ControlState.hpp"
+#include "control_lib/utils/math.hpp"
 
-namespace libcontrol {
+namespace control_lib {
     class AbstractController {
     public:
         AbstractController(ControlSpaces type, const size_t input_dim, const size_t output_dim, const double time_step = 0.01) : _output_dim(output_dim), _time_step(time_step)
@@ -61,6 +61,6 @@ namespace libcontrol {
         size_t _output_dim;
         Eigen::VectorXd _output;
     };
-} // namespace libcontrol
+} // namespace control_lib
 
-#endif // LIBCONTROL_ABSTRACTCONTROLLER_HPP
+#endif // CONTROLLIB_ABSTRACTCONTROLLER_HPP

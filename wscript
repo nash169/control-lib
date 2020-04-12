@@ -2,45 +2,44 @@
 # encoding: utf-8
 
 import os
+import os.path as osp
 import fnmatch
 
 VERSION = "1.0.0"
-APPNAME = "libcontrol"
+APPNAME = "control-lib"
 
 srcdir = "."
 blddir = "build"
 
 
 def options(opt):
-    # Load compiler options
+    # Load C++ compiler options
     opt.load("compiler_cxx")
-    opt.load("compiler_c")
 
     # Load tools options
-    opt.load("eigen", tooldir="waf_tools")
-    opt.load("corrade", tooldir="waf_tools")
+    opt.load("flags eigen corrade", tooldir="waf_tools")
 
     # Add options
-    opt.add_option("--shared", action="store_true",
-                   help="build shared library")
-    opt.add_option("--static", action="store_true",
-                   help="build static library")
+    opt.add_option(
+        "--shared", action="store_true", help="build shared library", dest="shared"
+    )
+    opt.add_option(
+        "--static", action="store_true", help="build static library", dest="static"
+    )
 
 
 def configure(cfg):
     # OSX/Mac uses .dylib and GNU/Linux .so
     cfg.env.SUFFIX = "dylib" if cfg.env["DEST_OS"] == "darwin" else "so"
 
-    # Load compiler configuration
+    # Load C++ compiler configuration
     cfg.load("compiler_cxx")
-    cfg.load("compiler_c")
 
-    # Load compiler flags
-    cfg.load("flags", tooldir="waf_tools")
+    # Load tools configurations
+    cfg.load("flags eigen corrade", tooldir="waf_tools")
 
-    # Load tools configuration
-    cfg.load("eigen", tooldir="waf_tools")
-    cfg.load("corrade", tooldir="waf_tools")
+    # Remove duplicates
+    cfg.get_env()["libs"] = list(set(cfg.get_env()["libs"]))
 
     # Set lib type
     if cfg.options.shared:
@@ -56,18 +55,22 @@ def build(bld):
     # Includes
     includes = []
     includes_path = "src"
-    for root, dirnames, filenames in os.walk(bld.path.abspath() + includes_path):
+    for root, dirnames, filenames in os.walk(
+        osp.join(bld.path.abspath(), includes_path)
+    ):
         for filename in fnmatch.filter(filenames, "*.hpp"):
             includes.append(os.path.join(root, filename))
-    includes = [f[len(bld.path.abspath()) + 1:] for f in includes]
+    includes = [f[len(bld.path.abspath()) + 1 :] for f in includes]
 
     # Sources
     sources = []
-    sources_path = "src/libcontrol"
-    for root, dirnames, filenames in os.walk(bld.path.abspath() + sources_path):
+    sources_path = "src/control_lib"
+    for root, dirnames, filenames in os.walk(
+        osp.join(bld.path.abspath(), sources_path)
+    ):
         for filename in fnmatch.filter(filenames, "*.cpp"):
             sources.append(os.path.join(root, filename))
-    sources = " ".join([f[len(bld.path.abspath()) + 1:] for f in sources])
+    sources = " ".join([f[len(bld.path.abspath()) + 1 :] for f in sources])
 
     # Build library
     if bld.options.shared:

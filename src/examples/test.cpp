@@ -1,7 +1,7 @@
+#include <control_lib/AbstractController.hpp>
 #include <iostream>
-#include <libcontrol/AbstractController.hpp>
 
-using namespace libcontrol;
+using namespace control_lib;
 
 int main(int argc, char const* argv[])
 {
