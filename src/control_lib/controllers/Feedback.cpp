@@ -5,7 +5,7 @@ namespace control_lib {
         Feedback::Feedback(ControlSpaces type, const size_t input_dim, const size_t output_dim, const double time_step) : AbstractController(type, input_dim, output_dim, time_step)
         {
             // This might be moved in the abstract class
-            _error = ControlState(input_dim, type);
+            _error = utils::ControlState(input_dim, type);
 
             // Init integral error
             _integral_error = Eigen::VectorXd::Zero(input_dim);

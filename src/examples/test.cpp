@@ -1,6 +1,4 @@
-#include <control_lib/controllers/Feedback.hpp>
-#include <control_lib/controllers/Lqr.hpp>
-
+#include <control_lib/Control.hpp>
 #include <iostream>
 
 using namespace control_lib;
@@ -10,8 +8,8 @@ int main(int argc, char const* argv[])
     size_t dim = 9;
     Eigen::VectorXd vec1 = Eigen::VectorXd::Random(36), vec2 = Eigen::VectorXd::Random(36);
 
-    ControlState state1(dim, ControlSpace::LINEAR | ControlSpace::ANGLEAXIS);
-    ControlState state2(dim, ControlSpace::LINEAR | ControlSpace::ANGLEAXIS);
+    utils::ControlState state1(dim, ControlSpace::LINEAR | ControlSpace::ANGLEAXIS);
+    utils::ControlState state2(dim, ControlSpace::LINEAR | ControlSpace::ANGLEAXIS);
 
     state1.setState(vec1);
     state2.setState(vec2);

@@ -1,7 +1,7 @@
 #ifndef CONTROLLIB_CONTROLLERS_FEEDBACK_HPP
 #define CONTROLLIB_CONTROLLERS_FEEDBACK_HPP
 
-#include "control_lib/AbstractController.hpp"
+#include "control_lib/controllers/AbstractController.hpp"
 
 namespace control_lib {
     namespace controllers {
@@ -22,7 +22,7 @@ namespace control_lib {
             Eigen::VectorXd update(const Eigen::VectorXd& state);
 
         protected:
-            ControlState _error;
+            utils::ControlState _error;
 
             Eigen::VectorXd _integral_error;
 

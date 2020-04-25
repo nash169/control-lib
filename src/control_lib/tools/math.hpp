@@ -1,10 +1,10 @@
-#ifndef CONTROLLIB_UTILS_MATH_HPP
-#define CONTROLLIB_UTILS_MATH_HPP
+#ifndef CONTROLLIB_TOOLS_MATH_HPP
+#define CONTROLLIB_TOOLS_MATH_HPP
 
 #include <Eigen/Dense>
 
 namespace control_lib {
-    namespace utils {
+    namespace tools {
         inline Eigen::Vector3d eulerError(const Eigen::Vector3d& curr, const Eigen::Vector3d& ref)
         {
         }
@@ -82,7 +82,7 @@ namespace control_lib {
 
             return U.transpose() * Y * U;
         }
-    } // namespace utils
+    } // namespace tools
 } // namespace control_lib
 
-#endif // CONTROLLIB_UTILS_MATH_HPP
+#endif // CONTROLLIB_TOOLS_MATH_HPP

@@ -1,5 +1,5 @@
-#ifndef CONTROLLIB_UTILS_MSG_HPP
-#define CONTROLLIB_UTILS_MSG_HPP
+#ifndef CONTROLLIB_TOOLS_MSG_HPP
+#define CONTROLLIB_TOOLS_MSG_HPP
 
 #include <cstdlib>
 #include <exception>
@@ -10,7 +10,7 @@
 #endif
 
 namespace control_lib {
-    namespace utils {
+    namespace tools {
         class Assertion : public std::exception {
         public:
             Assertion(const std::string& msg = "") : _msg(_make_message(msg)) {}
@@ -31,7 +31,7 @@ namespace control_lib {
                 return message;
             }
         };
-    } // namespace utils
+    } // namespace tools
 } // namespace control_lib
 
 #define CONTROLLIB_WARNING(condition, message)                                    \
@@ -69,4 +69,4 @@ namespace control_lib {
         }                                               \
     } while (false)
 
-#endif // CONTROLLIB_UTILS_MSG_HPP
+#endif // CONTROLLIB_TOOLS_MSG_HPP
