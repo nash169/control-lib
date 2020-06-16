@@ -1,5 +1,7 @@
 #include "control_lib/controllers/Feedback.hpp"
 
+#include <iostream>
+
 namespace control_lib {
     namespace controllers {
         Feedback::Feedback(ControlSpaces type, const size_t input_dim, const size_t output_dim, const double time_step) : AbstractController(type, input_dim, output_dim, time_step)
@@ -11,7 +13,7 @@ namespace control_lib {
             _integral_error = Eigen::VectorXd::Zero(input_dim);
         }
 
-        void Feedback::setGains(const std::string& type, const Eigen::MatrixXd& mat)
+        Feedback& Feedback::setGains(const std::string& type, const Eigen::MatrixXd& mat)
         {
             if (!type.compare("p"))
                 _gains.p_matrix = mat;
@@ -19,6 +21,8 @@ namespace control_lib {
                 _gains.d_matrix = mat;
             else
                 _gains.i_matrix = mat;
+
+            return *this;
         }
 
         Eigen::VectorXd Feedback::update(const Eigen::VectorXd& state)
@@ -43,7 +47,9 @@ namespace control_lib {
                 _output += -_gains.d_matrix * _error._velocity;
 
             if (_gains.i_matrix.size()) {
-                _integral_error += (error_prev + _error.getPos()) * _time_step / 2;
+                if (error_prev.size())
+                    _integral_error += (error_prev + _error.getPos()) * _time_step / 2;
+
                 _output += -_gains.i_matrix * _integral_error;
             }
 

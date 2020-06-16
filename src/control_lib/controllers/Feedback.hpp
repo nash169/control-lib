@@ -17,7 +17,7 @@ namespace control_lib {
             Feedback() {}
             ~Feedback() {}
 
-            void setGains(const std::string& type, const Eigen::MatrixXd& mat);
+            Feedback& setGains(const std::string& type, const Eigen::MatrixXd& mat);
 
             Eigen::VectorXd update(const Eigen::VectorXd& state);
 

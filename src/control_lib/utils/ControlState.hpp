@@ -120,11 +120,6 @@ namespace control_lib {
                     _effort = state.segment(_dim + 2 * dof, dof);
             }
 
-            // Faster way of setting the input state once the reference is defined
-            void setState(const Eigen::VectorXd& state, const ControlState& ref)
-            {
-            }
-
             ControlState operator-(ControlState const& obj)
             {
                 // Here goes some check of dimension and type
@@ -158,12 +153,12 @@ namespace control_lib {
             }
 
             // Variables
-            Eigen::VectorXd _pose, // Rigid body pose
-                _orientation, // Rigid body orientation
-                _coordinate, // Coordinates
-                _velocity, // Linear & Angular velocity
-                _acceleration, // Linear & Angular acceleration
-                _effort; // force & torque
+            Eigen::VectorXd _pose, // Cartesian space position
+                _orientation, // Cartesian space orientation
+                _coordinate, // Generalized coordinates
+                _velocity, // Velocity
+                _acceleration, // Acceleration
+                _effort; // Forces
 
             // Space type
             ControlSpaces _type;
