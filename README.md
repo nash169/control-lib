@@ -34,7 +34,7 @@ sudo pacman -S waf
 ```
 For other distros it is better to download the latest version from the official website and move the executable in the library repo
 ```sh
-wget 'https://waf.io/waf-2.0.19'
+wget 'https://waf.io/waf-2.0.21'
 mv waf-2.0.19waf-2.0.19 waf && mv waf /path/to/integrator-lib
 cd /path/to/kernel-lib
 chmod +x waf
@@ -57,36 +57,50 @@ If you want to make clean installation
 ```
 
 #### Compilation options
+In order to set the desired compiler define the environment variable CXX=<g++,clang++,icpc> (gnu, clang and intel compiler respectively).
+
 It is highly recommended to compile with AVX support
 ```sh
 waf (./waf) configure --optional-flags
 ```
-Enable OPENMP multi-threading
+Activate multi-threading outside EIGEN
 ```sh
 waf (./waf) configure --multi-threading
 ```
+Compile static library (default option)
+```sh
+waf (./waf) configure --static
+```
+Compile shared library
+```sh
+waf (./waf) configure --shared
+```
+##### EIGEN derived options
+Enable OPENMP multi-threading
+```sh
+waf (./waf) configure --eigen-openmp
+```
 Enable LAPACK
 ```sh
-waf (./waf) configure --with-lapack
+waf (./waf) configure --eigen-lapack
 ```
 Enable BLAS
 ```sh
-waf (./waf) configure --with-blas
+waf (./waf) configure --eigen-blas
 ```
 Enable MKL
 ```sh
-waf (./waf) configure --with-mkl
+waf (./waf) configure --eigen-mkl
 ```
-Set MKL multi-threading
+##### MKL derived options
+By default MKL uses `sequential` option. If you choose OpenMP multi-threading it is possible select between the GNU (default), `gnu`, or Intel, `intel`, version through `--mkl-openmp` option.
 ```sh
-waf (./waf) configure --mkl-threading=<sequential|openmp|tbb>
+waf (./waf) configure --mkl-threading=<sequential|openmp|tbb> -mkl-openmp=<gnu|intel>
 ```
-By default MKL uses `sequential` option. If you activate `openmp` this includes `--multi-threading` that will be deactivated in this case. In addition if you choose OpenMP multi-threading it is possible select between the GNU (default), `gnu`, or Intel, `intel`, version through `--mkl-openmp` option. 
-Suggested configuration
+##### Suggested configuration
 ```sh
-waf (./waf) configure --optional-flags --with-lapack --with-blas --with-mkl --mkl-threading=tbb
+waf (./waf) configure --optional-flags --multi-threading --eigen-openmp --eigen-lapack --eigen-blas --eigen-mkl --mkl-threading=tbb
 ```
-In order to set the desired compiler define the environment variable CXX=<g++,clang++,icpc> (gnu, clang and intel compiler respectively).
 
 ### Examples
 ```sh
