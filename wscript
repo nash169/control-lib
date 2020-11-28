@@ -55,22 +55,22 @@ def build(bld):
     # Includes
     includes = []
     includes_path = "src"
-    for root, dirnames, filenames in os.walk(
+    for root, _, filenames in os.walk(
         osp.join(bld.path.abspath(), includes_path)
     ):
         for filename in fnmatch.filter(filenames, "*.hpp"):
             includes.append(os.path.join(root, filename))
-    includes = [f[len(bld.path.abspath()) + 1 :] for f in includes]
+    includes = [f[len(bld.path.abspath()) + 1:] for f in includes]
 
     # Sources
     sources = []
     sources_path = "src/control_lib"
-    for root, dirnames, filenames in os.walk(
+    for root, _, filenames in os.walk(
         osp.join(bld.path.abspath(), sources_path)
     ):
         for filename in fnmatch.filter(filenames, "*.cpp"):
             sources.append(os.path.join(root, filename))
-    sources = " ".join([f[len(bld.path.abspath()) + 1 :] for f in sources])
+    sources = " ".join([f[len(bld.path.abspath()) + 1:] for f in sources])
 
     # Build library
     if bld.options.shared:

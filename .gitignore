@@ -403,3 +403,6 @@ TSWLatexianTemp*
 
 # standalone packages
 *.sta
+
+# WAF
+.lock-waf_darwin_build

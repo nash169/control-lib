@@ -11,11 +11,11 @@ def build(bld):
 
     # Get source files
     sources = []
-    for root, dirnames, filenames in os.walk(bld.path.abspath()):
+    for root, _, filenames in os.walk(bld.path.abspath()):
         for filename in fnmatch.filter(filenames, "*.cpp"):
             sources.append(os.path.join(root, filename))
 
-    sources = [f[len(bld.path.abspath()) + 1 :] for f in sources]
+    sources = [f[len(bld.path.abspath()) + 1:] for f in sources]
 
     for example in sources:
         bld.program(
