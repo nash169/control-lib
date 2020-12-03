@@ -10,7 +10,7 @@ namespace control_lib{
             size_t dim = A.rows();
 
             return (kronecker(Eigen::MatrixXd::Identity(dim, dim), A) + kronecker(A, Eigen::MatrixXd::Identity(dim, dim)))
-                .colPivHouseholderQr()
+                .colPivHouseholderQr() // selfadjointView<Eigen::Upper>().llt()
                 .solve(W.reshaped())
                 .reshaped(dim, dim);
         }

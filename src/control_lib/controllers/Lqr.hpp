@@ -46,7 +46,9 @@ namespace control_lib {
 
                 while (iter <= max_iter) {
                     Gp = G;
-                    G = R.colPivHouseholderQr().solve(tools::bartelsStewart(As - _linear_model.B * G, -Q - G.transpose() * R * G));
+                    G = R
+                    .colPivHouseholderQr() //selfadjointView<Eigen::Upper>().llt()
+                    .solve(tools::bartelsStewart(As - _linear_model.B * G, -Q - G.transpose() * R * G));
 
                     if ((G - Gp).lpNorm<Eigen::Infinity>() / G.lpNorm<Eigen::Infinity>() < tol)
                         break;
