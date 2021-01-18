@@ -33,6 +33,8 @@ namespace control_lib {
                 for (size_t j = 0; j < A.cols(); j++)
                     C.block(i * B.rows(), j * B.cols(), B.rows(), B.cols()) = A(i, j) * B;
             }
+
+            return C;
         }
 
         Eigen::MatrixXd solveVectorized(const Eigen::MatrixXd& A, const Eigen::MatrixXd& W);
