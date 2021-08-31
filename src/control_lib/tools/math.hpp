@@ -7,6 +7,16 @@ namespace control_lib {
     namespace tools {
         inline Eigen::Vector3d eulerError(const Eigen::Vector3d& curr, const Eigen::Vector3d& ref)
         {
+            Eigen::Vector3d error = curr - ref;
+
+            for (size_t i = 0; i < 3; i++) {
+                if (error(i) > M_PI)
+                    error(i) -= 2 * M_PI;
+                else if (error(i) < -M_PI)
+                    error(i) += 2 * M_PI;
+            }
+
+            return error;
         }
 
         inline Eigen::Vector3d rotationError(const Eigen::Vector3d& curr, const Eigen::Vector3d& ref)

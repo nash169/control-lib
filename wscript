@@ -80,7 +80,6 @@ def build(bld):
             target=bld.get_env()["libname"],
             includes=includes_path,
             uselib=bld.get_env()["libs"],
-            cxxxflags=bld.get_env()["CXXFLAGS"],
         )
     else:
         bld.stlib(
@@ -89,7 +88,6 @@ def build(bld):
             target=bld.get_env()["libname"],
             includes=includes_path,
             uselib=bld.get_env()["libs"],
-            cxxxflags=bld.get_env()["CXXFLAGS"],
         )
 
     # Build examples
@@ -112,3 +110,7 @@ def build(bld):
             "${PREFIX}/lib",
             blddir + "/lib" + bld.get_env()["libname"] + "." + bld.env.SUFFIX,
         )
+
+    # Install tools
+    bld.install_files("${PREFIX}/share/waf", "scripts/control_lib.py")
+    bld.install_files("${PREFIX}/share/waf", "waf_tools/utils.py")

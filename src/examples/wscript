@@ -14,17 +14,42 @@ def build(bld):
     for root, _, filenames in os.walk(bld.path.abspath()):
         for filename in fnmatch.filter(filenames, "*.cpp"):
             sources.append(os.path.join(root, filename))
-
     sources = [f[len(bld.path.abspath()) + 1:] for f in sources]
 
+    # External required libraries for the examples
+    example_required = {}
+
+    # External optional libraries for the examples
+    example_optional = {}
+
+    # Compile all the examples
     for example in sources:
-        bld.program(
-            features="cxx",
-            install_path=None,
-            source=example,
-            includes=includes_path,
-            uselib=bld.env["libs"],
-            use=bld.env["libname"],
-            cxxflags=bld.get_env()["CXXFLAGS"],
-            target=example[: len(example) - len(".cpp")],
-        )
+        # Activate optional defines
+        if example in example_optional and set(example_optional[example]).issubset(bld.env["libs"]):
+            optional_defines = ["GRAPHICS"]
+        else:
+            optional_defines = None
+
+        if example in example_required:
+            if set(example_required[example]).issubset(bld.env["libs"]):
+                bld.program(
+                    features="cxx",
+                    install_path=None,
+                    source=example,
+                    includes=includes_path,
+                    uselib=bld.env["libs"],
+                    use=bld.env["libname"],
+                    defines=optional_defines,
+                    target=example[: len(example) - len(".cpp")],
+                )
+        else:
+            bld.program(
+                features="cxx",
+                install_path=None,
+                source=example,
+                includes=includes_path,
+                uselib=bld.env["libs"],
+                use=bld.env["libname"],
+                defines=optional_defines,
+                target=example[: len(example) - len(".cpp")],
+            )

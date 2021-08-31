@@ -27,7 +27,6 @@ namespace control_lib {
 
         Eigen::VectorXd Feedback::update(const Eigen::VectorXd& state)
         {
-
             // This might change if we integrate the delay inside the controller
             _output.setZero();
 
