@@ -33,7 +33,7 @@ def configure(cfg):
     cfg.env.SUFFIX = "dylib" if cfg.env["DEST_OS"] == "darwin" else "so"
 
     # Load C++ compiler configuration
-    cfg.load("compiler_cxx")
+    cfg.load("compiler_cxx clang_compilation_database")
 
     # Load tools configurations
     cfg.load("flags eigen corrade", tooldir="waf_tools")
@@ -112,5 +112,5 @@ def build(bld):
         )
 
     # Install tools
-    bld.install_files("${PREFIX}/share/waf", "scripts/control_lib.py")
+    bld.install_files("${PREFIX}/share/waf", "scripts/controllib.py")
     bld.install_files("${PREFIX}/share/waf", "waf_tools/utils.py")
