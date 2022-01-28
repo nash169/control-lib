@@ -38,7 +38,7 @@ def options(opt):
 
 
 @conf
-def check_control(ctx):
+def check_controllib(ctx):
     # Set the search path
     if ctx.options.controllib_path is None:
         path_check = ["/usr/local", "/usr"]
@@ -68,4 +68,4 @@ def check_control(ctx):
 
 def configure(cfg):
     if not cfg.env.LIB_CONTROLLIB and not cfg.env.STLIB_CONTROLLIB:
-        cfg.check_control()
+        cfg.check_controllib()
