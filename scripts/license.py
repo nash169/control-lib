@@ -87,14 +87,14 @@ def insert_header(fname, prefix, postfix, license, kept_header=[]):
 
     in_header = False
 
-    for line in input:
+    for count, line in enumerate(input):
         header = len(
             list(filter(lambda x: x == line[0:len(x)], kept_header))) != 0
-        check_prefix = (line[0:len(prefix)] == prefix)
+        check_prefix = (line[0:len(prefix)] == prefix and count == 0)
         check_postfix = (has_postfix and (line[0:len(postfix)] == postfix))
-        if check_prefix and has_postfix:
+        if check_prefix:
             in_header = True
-        if check_postfix:
+        if check_postfix or (not has_postfix and line[0:len(prefix)] != prefix):
             in_header = False
         if (not in_header) and (not check_prefix) and (not header) and (not check_postfix):
             output.write(line)
@@ -107,7 +107,7 @@ def insert(directory):
     # C/C++
     cpp = make_dirlist(directory, ['.hpp', '.cpp', '.h', '.c', '.cc'])
     for i in cpp:
-        insert_header(i, '/*', '*/\n', license)
+        insert_header(i, '/*', '*/', license)
 
     # Python
     py = make_dirlist(directory, ['.py'])
