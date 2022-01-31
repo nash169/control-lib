@@ -88,16 +88,31 @@ def insert_header(fname, prefix, postfix, license, kept_header=[]):
     in_header = False
 
     for count, line in enumerate(input):
+        # Skip kept header
         header = len(
             list(filter(lambda x: x == line[0:len(x)], kept_header))) != 0
+
+        # Check prefix for beginning header
         check_prefix = (line[0:len(prefix)] == prefix and count == 0)
+
+        # Check postfix end header
         check_postfix = (has_postfix and (line[0:len(postfix)] == postfix))
+
+        # Check if in header
         if check_prefix:
             in_header = True
-        if check_postfix or (not has_postfix and line[0:len(prefix)] != prefix):
+
+        # Check if off header (without postfix)
+        if not has_postfix and line[0:len(prefix)] != prefix:
             in_header = False
-        if (not in_header) and (not check_prefix) and (not header) and (not check_postfix):
+
+        # Write line
+        if (not in_header) and (not check_prefix) and (not header):
             output.write(line)
+
+        # Check if off header (with postfix)
+        if check_postfix:
+            in_header = False
 
     output.close()
     shutil.move(ofname, fname)
@@ -137,3 +152,13 @@ if __name__ == '__main__':
 
     # Insert license in the scripts
     insert('scripts')
+
+    # Insert license in the wscript main
+    wscripts = [
+        'wscript',
+        'src/examples/wscript'
+    ]
+
+    for wscript in wscripts:
+        insert_header(wscript, '#', '', license, [
+                      '#!/usr/bin/env python', '# encoding: utf-8'])
