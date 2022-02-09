@@ -48,7 +48,7 @@ namespace control_lib {
             Eigen::Matrix3d R_current = Eigen::AngleAxisd(curr.norm(), curr.normalized()).toRotationMatrix(),
                             R_desired = Eigen::AngleAxisd(ref.norm(), ref.normalized()).toRotationMatrix();
 
-            Eigen::AngleAxisd aa = Eigen::AngleAxisd(R_desired.transpose() * R_current);
+            Eigen::AngleAxisd aa = Eigen::AngleAxisd(R_current.transpose() * R_desired);
 
             return aa.axis() * aa.angle();
         }
