@@ -23,9 +23,19 @@
 */
 
 #include <control_lib/Control.hpp>
+#include <control_lib/controllers/Feedback2.hpp>
+#include <control_lib/spatial/SE3.hpp>
 #include <iostream>
 
 using namespace control_lib;
+
+struct Params {
+    struct controller : public defaults::controller {
+    };
+
+    struct feedback : public defaults::feedback {
+    };
+};
 
 int main(int argc, char const* argv[])
 {
@@ -54,11 +64,27 @@ int main(int argc, char const* argv[])
     ctr.setReference(q_ref);
     ctr.setGains("p", p_gains).setGains("d", d_gains).setGains("i", i_gains);
 
-    std::cout << "Control ouput (step 1)" << std::endl;
-    std::cout << ctr.update(q).transpose() << std::endl;
+    // std::cout << "Control ouput (step 1)" << std::endl;
+    // std::cout << ctr.update(q).transpose() << std::endl;
 
-    std::cout << "Control ouput (step 2)" << std::endl;
-    std::cout << ctr.update(q).transpose() << std::endl;
+    // std::cout << "Control ouput (step 2)" << std::endl;
+    // std::cout << ctr.update(q).transpose() << std::endl;
+
+    Eigen::Vector3d xDes(0.365308, -0.0810892, 1.13717);
+    Eigen::Matrix3d oDes;
+    oDes << 0.591427, -0.62603, 0.508233,
+        0.689044, 0.719749, 0.0847368,
+        -0.418848, 0.300079, 0.857041;
+    spatial::SE3 curr(oDes, xDes);
+    Eigen::VectorXd vel = Eigen::VectorXd::Random(6);
+
+    controllers::Feedback2<Params, spatial::SE3> ctr2;
+    ctr2
+        .setStiffness(Eigen::MatrixXd::Identity(6, 6))
+        .setDamping(Eigen::MatrixXd::Identity(6, 6))
+        .setIntegral(Eigen::MatrixXd::Identity(6, 6));
+    std::cout << "action" << std::endl;
+    std::cout << ctr2.action(curr, vel).transpose() << std::endl;
 
     return 0;
 }

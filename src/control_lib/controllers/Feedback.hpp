@@ -38,7 +38,9 @@ namespace control_lib {
         class Feedback : public AbstractController {
         public:
             Feedback(ControlSpaces type, const size_t input_dim, const size_t output_dim, const double time_step = 0.01);
+
             Feedback() {}
+
             ~Feedback() {}
 
             Feedback& setGains(const std::string& type, const Eigen::MatrixXd& mat);

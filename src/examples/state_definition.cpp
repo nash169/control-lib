@@ -23,6 +23,7 @@
 */
 
 #include <control_lib/Control.hpp>
+#include <control_lib/spatial/SE3.hpp>
 #include <iostream>
 
 using namespace control_lib;
@@ -32,7 +33,7 @@ int main(int argc, char const* argv[])
     /* If orientation is define the first part of the state is considered to be
     defining the location of the body in the space. Otherwise the state is
     considered to be generalized cooridnate where LINEAR geometry applies by default.
-    The dimension of the state to the number of degree of freedom plus the 
+    The dimension of the state to the number of degree of freedom plus the
     pose in the space (consider one dimension more four quaternion). If the length
     of the state exceeds the dimension deifined velocity, acceleration and effort are
     filled in this order. */
@@ -71,7 +72,7 @@ int main(int argc, char const* argv[])
     std::cout << "Acceleration" << std::endl;
     std::cout << diff._acceleration.transpose() << std::endl;
 
-    std::cout << "Fffort" << std::endl;
+    std::cout << "Effort" << std::endl;
     std::cout << diff._effort.transpose() << std::endl;
 
     return 0;
