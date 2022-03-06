@@ -1,9 +1,8 @@
 #ifndef CONTROLLIB_CONTROLLERS_FEEDBACK2_HPP
 #define CONTROLLIB_CONTROLLERS_FEEDBACK2_HPP
 
-#include <type_traits>
-
 #include "control_lib/controllers/AbstractController2.hpp"
+#include <type_traits>
 
 namespace control_lib {
     namespace defaults {
@@ -12,7 +11,7 @@ namespace control_lib {
     } // namespace defaults
 
     namespace controllers {
-        template <typename Params, typename Space>
+        template <typename Params, typename Space = spatial::SE3>
         class Feedback2 : public AbstractController2<Params, Space> {
         public:
             Feedback2() : AbstractController2<Params, Space>() {}
@@ -39,57 +38,40 @@ namespace control_lib {
                 return *this;
             }
 
-            template <typename... Args>
-            Eigen::VectorXd action(Args&&... args)
+            void update(const Space& x) override
             {
-                // Keep track of the iteration
-                size_t i = 0;
-
-                // Action vector and error
-                Eigen::VectorXd u = Eigen::VectorXd::Zero(_d);
+                _u.setZero();
                 Eigen::Matrix<double, Space::dimension(), 1> err;
 
-                // Generate control action
-                ([&](auto& arg) {
-                    if constexpr (std::is_same_v<std::remove_reference_t<decltype(arg)>, Space>) {
-                        // Proportional
-                        if (_K.size()) {
-                            // std::cout << "iteration: " << i << std::endl;
-                            // std::cout << "proportional" << std::endl;
-                            err = (arg - _xr).log();
-                            u -= _K * err;
-                        }
+                // Proportional
+                if (_K.size()) {
+                    std::cout << "Proportional" << std::endl;
+                    err = (x - _xr);
+                    _u -= _K * err;
+                }
 
-                        if (_I.size()) {
-                            // std::cout << "iteration: " << i << std::endl;
-                            // std::cout << "integral" << std::endl;
-                            if (!err.size())
-                                err = (arg - _xr).log();
-                            _eng += (_err + err) * _dt * 0.5;
-                            u -= _I * _eng;
-                            _err = err;
-                        }
-                    }
-                    else if (_D.size()) {
-                        // std::cout << "iteration: " << i << std::endl;
-                        // std::cout << "derivative" << std::endl;
-                        u -= _D * (arg - _xr.velocity());
-                    }
+                // Derivative
+                if (_D.size()) {
+                    std::cout << "Derivative" << std::endl;
+                    _u -= _D * (x._vel - _xr._vel);
+                }
 
-                    // Increment
-                    ++i;
-                }(args),
-                    ...);
-
-                return u;
+                // Integral
+                if (_I.size()) {
+                    std::cout << "Integrate" << std::endl;
+                    if (!err.size())
+                        err = (x - _xr);
+                    _eng += (_err + err) * _dt * 0.5;
+                    _u -= _I * _eng;
+                    _err = err;
+                }
             }
 
         protected:
             using AbstractController2<Params, Space>::_d;
-
             using AbstractController2<Params, Space>::_dt;
-
             using AbstractController2<Params, Space>::_xr;
+            using AbstractController2<Params, Space>::_u;
 
             Eigen::MatrixXd _K, _D, _I;
 
@@ -101,3 +83,42 @@ namespace control_lib {
 } // namespace control_lib
 
 #endif // CONTROLLIB_CONTROLLERS_FEEDBACK2_HPP
+
+// template <typename... Args>
+// Eigen::VectorXd action(Args&&... args)
+// {
+//     // Keep track of the iteration
+//     size_t i = 0;
+
+//     // Action vector and error
+//     Eigen::VectorXd u = Eigen::VectorXd::Zero(_d);
+//     Eigen::Matrix<double, Space::dimension(), 1> err;
+
+//     // Generate control action
+//     ([&](auto& arg) {
+//         if constexpr (std::is_same_v<std::remove_reference_t<decltype(arg)>, Space>) {
+//             // Proportional
+//             if (_K.size()) {
+//                 err = (arg - AbstractController2<Params, Space>::_xr).log();
+//                 u -= _K * err;
+//             }
+
+//             if (_I.size()) {
+//                 if (!err.size())
+//                     err = (arg - AbstractController2<Params, Space>::_xr).log();
+//                 _eng += (_err + err) * AbstractController2<Params, Space>::_dt * 0.5;
+//                 u -= _I * _eng;
+//                 _err = err;
+//             }
+//         }
+//         else if (_D.size()) {
+//             u -= _D * (arg - AbstractController2<Params, Space>::_xr.velocity());
+//         }
+
+//         // Increment
+//         ++i;
+//     }(args),
+//         ...);
+
+//     return u;
+// }

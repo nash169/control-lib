@@ -23,8 +23,14 @@
 */
 
 #include <control_lib/Control.hpp>
+
 #include <control_lib/controllers/Feedback2.hpp>
+#include <control_lib/controllers/LinearDynamics2.hpp>
+
+#include <control_lib/spatial/RN.hpp>
 #include <control_lib/spatial/SE3.hpp>
+#include <control_lib/spatial/SO3.hpp>
+
 #include <iostream>
 
 using namespace control_lib;
@@ -34,6 +40,9 @@ struct Params {
     };
 
     struct feedback : public defaults::feedback {
+    };
+
+    struct linear_dynamics : public defaults::linear_dynamics {
     };
 };
 
@@ -70,21 +79,37 @@ int main(int argc, char const* argv[])
     // std::cout << "Control ouput (step 2)" << std::endl;
     // std::cout << ctr.update(q).transpose() << std::endl;
 
+    // Referece state
     Eigen::Vector3d xDes(0.365308, -0.0810892, 1.13717);
     Eigen::Matrix3d oDes;
     oDes << 0.591427, -0.62603, 0.508233,
         0.689044, 0.719749, 0.0847368,
         -0.418848, 0.300079, 0.857041;
-    spatial::SE3 curr(oDes, xDes);
-    Eigen::VectorXd vel = Eigen::VectorXd::Random(6);
+    spatial::SE3 sDes(oDes, xDes);
 
+    // Current state
+    spatial::SE3 sCurr(Eigen::Matrix3d::Identity(), Eigen::Vector3d::Zero());
+
+    controllers::LinearDynamics2<Params, spatial::SE3> ctr3;
+    ctr3.setReference(sDes);
+    std::cout << "Linear DS action" << std::endl;
+    std::cout << ctr3.action(sCurr).transpose() << std::endl;
+
+    sDes._vel = ctr3.action(sCurr);
+    sCurr._vel = Eigen::VectorXd::Random(6);
     controllers::Feedback2<Params, spatial::SE3> ctr2;
     ctr2
-        .setStiffness(Eigen::MatrixXd::Identity(6, 6))
+        // .setStiffness(Eigen::MatrixXd::Identity(6, 6))
         .setDamping(Eigen::MatrixXd::Identity(6, 6))
-        .setIntegral(Eigen::MatrixXd::Identity(6, 6));
-    std::cout << "action" << std::endl;
-    std::cout << ctr2.action(curr, vel).transpose() << std::endl;
+        // .setIntegral(Eigen::MatrixXd::Identity(6, 6))
+        .setReference(sDes);
+    std::cout << "Feedback action" << std::endl;
+    std::cout << ctr2.action(sCurr).transpose() << std::endl;
+
+    std::cout << "test" << std::endl;
+    spatial::RN<3> a(Eigen::Vector3d::Random()), b(Eigen::Vector3d::Random());
+    std::cout << (a - b).transpose() << std::endl;
+    std::cout << (a._pos - b._pos).transpose() << std::endl;
 
     return 0;
 }

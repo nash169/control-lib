@@ -3,11 +3,13 @@
 
 #include "control_lib/spatial/SE3.hpp"
 #include "control_lib/tools/macros.hpp"
+#include <Eigen/Core>
+#include <memory>
 
 namespace control_lib {
     namespace defaults {
         struct controller {
-            // Space dimension (by default SE3 dimensionality)
+            // Output space dimension (by default SE3 dimensionality)
             PARAM_SCALAR(double, d, 6);
 
             // Integration time step controller
@@ -19,10 +21,13 @@ namespace control_lib {
     } // namespace defaults
 
     namespace controllers {
-        template <typename Params, typename Space = spatial::SE3>
+        template <typename Params, typename Space>
         class AbstractController2 {
         public:
-            AbstractController2() : _d(Params::controller::d()), _dt(Params::controller::dt()), _xr(Params::controller::xr()) {}
+            AbstractController2() : _d(Params::controller::d()),
+                                    _dt(Params::controller::dt()),
+                                    _xr(Params::controller::xr()),
+                                    _u(Eigen::VectorXd::Zero(_d)) {}
 
             const size_t& dimension() const { return _d; };
 
@@ -48,6 +53,14 @@ namespace control_lib {
                 return *this;
             }
 
+            virtual void update(const Space& x) = 0;
+
+            const Eigen::VectorXd& action(const Space& x)
+            {
+                update(x);
+                return _u;
+            }
+
         protected:
             // Output dimension
             size_t _d;
@@ -57,6 +70,9 @@ namespace control_lib {
 
             // Operation space
             Space _xr;
+
+            // Control state
+            Eigen::VectorXd _u;
         };
     } // namespace controllers
 } // namespace control_lib
