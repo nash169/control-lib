@@ -39,7 +39,7 @@ def options(opt):
     opt.load("compiler_cxx")
 
     # Load tools options
-    opt.load("flags eigen corrade", tooldir="waf_tools")
+    opt.load("flags eigen", tooldir="waf_tools")
 
     # Add options
     opt.add_option(
@@ -58,7 +58,8 @@ def configure(cfg):
     cfg.load("compiler_cxx clang_compilation_database")
 
     # Load tools configurations
-    cfg.load("flags eigen corrade", tooldir="waf_tools")
+    cfg.get_env()["requires"] += ["EIGEN"]
+    cfg.load("flags eigen", tooldir="waf_tools")
 
     # Remove duplicates
     cfg.get_env()["libs"] = list(set(cfg.get_env()["libs"]))
