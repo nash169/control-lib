@@ -1,5 +1,5 @@
 /*
-    This file is part of kernel-lib.
+    This file is part of control-lib.
 
     Copyright (c) 2020, 2021, 2022 Bernardo Fichera <bernardo.fichera@gmail.com>
 
