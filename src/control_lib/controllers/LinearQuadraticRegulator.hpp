@@ -22,23 +22,27 @@
     SOFTWARE.
 */
 
-#ifndef CONTROLLIB_CONTROLLERS_LQR_HPP
-#define CONTROLLIB_CONTROLLERS_LQR_HPP
+#ifndef CONTROLLIB_CONTROLLERS_LINEARQUADRATICREGULATOR_HPP
+#define CONTROLLIB_CONTROLLERS_LINEARQUADRATICREGULATOR_HPP
 
 #include "control_lib/controllers/Feedback.hpp"
+#include "control_lib/tools/math.hpp"
 
 namespace control_lib {
     struct LinearModel {
         Eigen::MatrixXd A, B, C, D;
     };
 
-    namespace controllers {
-        class Lqr : public Feedback {
-        public:
-            Lqr(ControlSpaces type, const size_t input_dim, const size_t output_dim, const double time_step = 0.01)
-                : Feedback(type, input_dim, output_dim, time_step) {}
+    namespace defaults {
+        struct lq_regulator {
+        };
+    } // namespace defaults
 
-            Lqr() = default;
+    namespace controllers {
+        template <typename Params, typename Space = spatial::SE3>
+        class LinearQuadraticRegulator : public Feedback<Params, Space> {
+        public:
+            LinearQuadraticRegulator() : Feedback<Params, Space>() {}
 
             void setModel(const LinearModel& model)
             {
@@ -67,7 +71,7 @@ namespace control_lib {
 
                 while (iter <= max_iter) {
                     Gp = G;
-                    G = R.colPivHouseholderQr() //selfadjointView<Eigen::Upper>().llt()
+                    G = R.colPivHouseholderQr() // selfadjointView<Eigen::Upper>().llt()
                             .solve(tools::bartelsStewart(As - _linear_model.B * G, -Q - G.transpose() * R * G));
 
                     if ((G - Gp).lpNorm<Eigen::Infinity>() / G.lpNorm<Eigen::Infinity>() < tol)
@@ -94,4 +98,4 @@ namespace control_lib {
     } // namespace controllers
 } // namespace control_lib
 
-#endif // CONTROLLIB_CONTROLLERS_LQR_HPP
+#endif // CONTROLLIB_CONTROLLERS_LINEARQUADRATICREGULATOR_HPP

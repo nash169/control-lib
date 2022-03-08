@@ -1,28 +1,32 @@
-#ifndef CONTROLLIB_CONTROLLERS_CIRCULAR_DYNAMICS_HPP
-#define CONTROLLIB_CONTROLLERS_CIRCULAR_DYNAMICS_HPP
+#ifndef CONTROLLIB_CONTROLLERS_CIRCULARDYNAMICS_HPP
+#define CONTROLLIB_CONTROLLERS_CIRCULARDYNAMICS_HPP
 
 #include "control_lib/controllers/AbstractController.hpp"
 
 namespace control_lib {
+    namespace defaults {
+        struct circular_dynamics {
+            PARAM_SCALAR(double, rho, 1);
+        };
+
+    } // namespace defaults
+
     namespace controllers {
-        class CircularDynamics : public AbstractController {
+        template <typename Params, typename Space = spatial::SE3>
+        class CircularDynamics : public AbstractController<Params, Space> {
         public:
-            CircularDynamics(ControlSpaces type, const size_t dim) : AbstractController(type, dim, dim)
-            {
-                _rho = 1;
-            }
+            CircularDynamics() : AbstractController<Params, Space>(), _rho(Params::circular_dynamics::rho()) {}
 
-            const double& dynamicsMatrix() const { return _rho; }
+            const double& radius() const { return _rho; }
 
-            CircularDynamics& setDynamicsMatrix(const double& rho)
+            CircularDynamics& setRadius(const double& rho)
             {
                 _rho = rho;
                 return *this;
             }
 
-            Eigen::VectorXd update(const Eigen::VectorXd& state)
+            void update(const Space& x) override
             {
-                return _output;
             }
 
         protected:
@@ -32,4 +36,4 @@ namespace control_lib {
 
 } // namespace control_lib
 
-#endif // CONTROLLIB_CONTROLLERS_CIRCULAR_DYNAMICS_HPP
+#endif // CONTROLLIB_CONTROLLERS_CIRCULARDYNAMICS_HPP

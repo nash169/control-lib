@@ -27,12 +27,7 @@
 
 /* Controllers */
 #include "control_lib/controllers/Feedback.hpp"
-#include "control_lib/controllers/Lqr.hpp"
-
-/* Utils */
-#include "control_lib/utils/ControlState.hpp"
-
-/* Tools */
-#include "control_lib/tools/math.hpp"
+#include "control_lib/controllers/LinearDynamics.hpp"
+#include "control_lib/controllers/LinearQuadraticRegulator.hpp"
 
 #endif // CONTROLLIB_CONTROL_HPP
