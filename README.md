@@ -5,7 +5,9 @@ Library containing controllers with generic application
 - Bernardo Fichera (bernardo.fichera@epfl.ch)
 
 ### Available Controller
-- PID
+- Feedback
+- Linear Dynamics
+- Linear Quadratic Regulator
 
 ### Dependencies
 This library depends on **Eigen**
