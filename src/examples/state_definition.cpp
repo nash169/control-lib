@@ -23,7 +23,6 @@
 */
 
 #include <control_lib/Control.hpp>
-#include <control_lib/spatial/SE3.hpp>
 #include <iostream>
 
 using namespace control_lib;
