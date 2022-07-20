@@ -92,7 +92,7 @@ namespace control_lib {
             // Integration time step
             double _dt;
 
-            // Operation space
+            // Reference state
             Space _xr;
 
             // Control state
