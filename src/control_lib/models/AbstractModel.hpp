@@ -22,12 +22,19 @@
     SOFTWARE.
 */
 
-#ifndef CONTROLLIB_CONTROL_HPP
-#define CONTROLLIB_CONTROL_HPP
+#ifndef CONTROLLIB_MODELS_ABSTRACTMODEL_HPP
+#define CONTROLLIB_MODELS_ABSTRACTMODEL_HPP
 
-/* Controllers */
-#include "control_lib/controllers/Feedback.hpp"
-#include "control_lib/controllers/LinearDynamics.hpp"
-#include "control_lib/controllers/LinearQuadraticRegulator.hpp"
+namespace control_lib {
+    namespace models {
+        class AbstractModel {
+        public:
+            AbstractModel() = default;
 
-#endif // CONTROLLIB_CONTROL_HPP
+                protected:
+        };
+    } // namespace models
+
+} // namespace control_lib
+
+#endif // CONTROLLIB_MODELS_ABSTRACTMODEL_HPP

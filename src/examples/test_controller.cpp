@@ -22,8 +22,6 @@
     SOFTWARE.
 */
 
-#include <control_lib/Control.hpp>
-
 #include <control_lib/controllers/Feedback.hpp>
 #include <control_lib/controllers/LinearDynamics.hpp>
 
