@@ -52,6 +52,10 @@ namespace control_lib {
             /* Tangent and contagent plane elements (optionals) */
             Eigen::Matrix<double, 6, 1> _vel, _acc, _eff;
 
+            static void actionInverse()
+            {
+            }
+
         protected:
             SE3 action(const SE3& pose) const { return SE3(_rot * pose._rot, _trans + _rot * pose._trans); }
 

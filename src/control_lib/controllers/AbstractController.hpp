@@ -25,22 +25,15 @@
 #ifndef CONTROLLIB_CONTROLLERS_ABSTRACCONTROLLER_HPP
 #define CONTROLLIB_CONTROLLERS_ABSTRACCONTROLLER_HPP
 
-#include "control_lib/spatial/SE3.hpp"
-#include "control_lib/tools/macros.hpp"
 #include <Eigen/Core>
-#include <memory>
+
+#include "control_lib/tools/macros.hpp"
 
 namespace control_lib {
     namespace defaults {
         struct controller {
-            // Output space dimension (by default SE3 dimensionality)
-            PARAM_SCALAR(double, d, 6);
-
             // Integration time step controller
             PARAM_SCALAR(double, dt, 0.001);
-
-            // Reference vector at the moment by default in SE3
-            PARAM_VECTOR(double, xr, 0, 0, 0, 0, 0, 0);
         };
     } // namespace defaults
 
@@ -48,10 +41,7 @@ namespace control_lib {
         template <typename Params, typename Space>
         class AbstractController {
         public:
-            AbstractController() : _d(Params::controller::d()),
-                                   _dt(Params::controller::dt()),
-                                   _xr(Params::controller::xr()),
-                                   _u(Eigen::VectorXd::Zero(_d)) {}
+            AbstractController() : _dt(Params::controller::dt()) {}
 
             const size_t& dimension() const { return _d; };
 
@@ -82,6 +72,11 @@ namespace control_lib {
             const Eigen::VectorXd& action(const Space& x)
             {
                 update(x);
+                return _u;
+            }
+
+            const Eigen::VectorXd& output() const
+            {
                 return _u;
             }
 

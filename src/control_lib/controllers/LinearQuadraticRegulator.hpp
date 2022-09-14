@@ -39,7 +39,7 @@ namespace control_lib {
     } // namespace defaults
 
     namespace controllers {
-        template <typename Params, typename Space = spatial::SE3>
+        template <typename Params, typename Space>
         class LinearQuadraticRegulator : public Feedback<Params, Space> {
         public:
             LinearQuadraticRegulator() : Feedback<Params, Space>() {}

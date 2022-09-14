@@ -36,7 +36,7 @@ namespace control_lib {
     } // namespace defaults
 
     namespace controllers {
-        template <typename Params, typename Space = spatial::SE3>
+        template <typename Params, typename Space>
         class CircularDynamics : public AbstractController<Params, Space> {
         public:
             CircularDynamics() : AbstractController<Params, Space>(), _rho(Params::circular_dynamics::rho()) {}
