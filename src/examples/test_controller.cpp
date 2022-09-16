@@ -58,25 +58,27 @@ int main(int argc, char const* argv[])
     spatial::SE3 sCurr(Eigen::Matrix3d::Identity(), Eigen::Vector3d::Zero());
 
     controllers::LinearDynamics<Params, spatial::SE3> ctr1;
-    ctr1.setReference(sDes);
-    std::cout << "Linear DS action" << std::endl;
-    std::cout << ctr1.action(sCurr).transpose() << std::endl;
 
-    sDes._vel = ctr1.action(sCurr);
-    sCurr._vel = Eigen::VectorXd::Random(6);
-    controllers::Feedback<Params, spatial::SE3> ctr2;
-    ctr2
-        // .setStiffness(Eigen::MatrixXd::Identity(6, 6))
-        .setDamping(Eigen::MatrixXd::Identity(6, 6))
-        // .setIntegral(Eigen::MatrixXd::Identity(6, 6))
-        .setReference(sDes);
-    std::cout << "Feedback action" << std::endl;
-    std::cout << ctr2.action(sCurr).transpose() << std::endl;
+    std::cout << ctr1.dimension() << std::endl;
+    // ctr1.setReference(sDes);
+    // std::cout << "Linear DS action" << std::endl;
+    // std::cout << ctr1.action(sCurr).transpose() << std::endl;
 
-    std::cout << "test" << std::endl;
-    spatial::RN<3> a(Eigen::Vector3d::Random()), b(Eigen::Vector3d::Random());
-    std::cout << (a - b).transpose() << std::endl;
-    std::cout << (a._pos - b._pos).transpose() << std::endl;
+    // sDes._vel = ctr1.action(sCurr);
+    // sCurr._vel = Eigen::VectorXd::Random(6);
+    // controllers::Feedback<Params, spatial::SE3> ctr2;
+    // ctr2
+    //     // .setStiffness(Eigen::MatrixXd::Identity(6, 6))
+    //     .setDamping(Eigen::MatrixXd::Identity(6, 6))
+    //     // .setIntegral(Eigen::MatrixXd::Identity(6, 6))
+    //     .setReference(sDes);
+    // std::cout << "Feedback action" << std::endl;
+    // std::cout << ctr2.action(sCurr).transpose() << std::endl;
+
+    // std::cout << "test" << std::endl;
+    // spatial::RN<3> a(Eigen::Vector3d::Random()), b(Eigen::Vector3d::Random());
+    // std::cout << (a - b).transpose() << std::endl;
+    // std::cout << (a._pos - b._pos).transpose() << std::endl;
 
     return 0;
 }

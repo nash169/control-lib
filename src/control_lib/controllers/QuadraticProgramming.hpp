@@ -42,7 +42,7 @@ namespace control_lib {
     namespace defaults {
         struct quadratic_programming {
             // State dimension
-            PARAM_SCALAR(size_t, nV, 1);
+            PARAM_SCALAR(size_t, nP, 1);
 
             // Control input dimension
             PARAM_SCALAR(size_t, nC, 1);
@@ -54,9 +54,9 @@ namespace control_lib {
 
     namespace controllers {
         template <typename Params, typename Model>
-        class QuadraticProgramming : public AbstractController<Params, spatial::RN<Params::quadratic_programming::nV()>> {
+        class QuadraticProgramming : public AbstractController<Params, spatial::RN<Params::quadratic_programming::nP()>> {
         public:
-            QuadraticProgramming() : _nP(Params::quadratic_programming::nV()), _nC(Params::quadratic_programming::nC()), _nS(Params::quadratic_programming::nS())
+            QuadraticProgramming() : _nP(Params::quadratic_programming::nP()), _nC(Params::quadratic_programming::nC()), _nS(Params::quadratic_programming::nS())
             {
                 // total problem dimension
                 _d = _nP + _nC + _nS;
@@ -79,34 +79,64 @@ namespace control_lib {
             }
 
             /* Objectives */
-            QuadraticProgramming& energyMinimization(const Eigen::MatrixXd& Q)
+            QuadraticProgramming& accelerationMinimization(Eigen::MatrixXd& Q)
             {
                 _opt._H.block(0, 0, _nP, _nP) = Eigen::Map<MatrixRowMajor>(Q.data(), _nP, _nP);
                 return *this;
             }
 
             template <typename Target>
-            QuadraticProgramming& dynamicsTracking(const Eigen::MatrixXd& Q, const Target& target)
+            QuadraticProgramming& accelerationTracking(const Eigen::MatrixXd& Q, const Target& target)
             {
-                _opt._H.block(0, 0, _nP, _nP) = Eigen::Map<MatrixRowMajor>(Q.data(), _nP, _nP);
-                _opt._g.segment(0, _nP) = -2 * Q * target.acceleration();
+                // Add objective
+                _objectives.push_back(std::bind(&QuadraticProgramming<Params, Model>::accelerationTrackingImpl, this, Q, target.acceleration().segment(0, target.dimension())));
+
+                // Run objective
+                _objectives.back()();
+
                 return *this;
             }
 
-            QuadraticProgramming& controlSaturation(const Eigen::MatrixXd& R)
+            void accelerationTrackingImpl(const Eigen::MatrixXd& Q, Eigen::Ref<const Eigen::VectorXd> targetAcc)
+            {
+                // std::cout << "qp" << std::endl;
+                // std::cout << targetAcc.transpose() << std::endl;
+                _opt._g.segment(0, _nP) = -2 * Q * targetAcc;
+            }
+
+            QuadraticProgramming& effortMinimization(Eigen::MatrixXd& R)
             {
                 _opt._H.block(_nP, _nP, _nC, _nC) = Eigen::Map<MatrixRowMajor>(R.data(), _nC, _nC);
                 return *this;
             }
 
-            QuadraticProgramming& slackVariable(const Eigen::MatrixXd& W)
+            template <typename Target>
+            QuadraticProgramming& effortTracking(const Eigen::MatrixXd& R, const Target& target)
+            {
+                // Add objective
+                _objectives.push_back(std::bind(&QuadraticProgramming<Params, Model>::effortTrackingImpl, this, R, target.effort().segment(0, target.dimension())));
+
+                // Run objective
+                _objectives.back()();
+
+                return *this;
+            }
+
+            void effortTrackingImpl(const Eigen::MatrixXd& R, Eigen::Ref<const Eigen::VectorXd> targetEff)
+            {
+                // std::cout << "qp" << std::endl;
+                // std::cout << targetEff.transpose() << std::endl;
+                _opt._g.segment(_nP, _nC) = -2 * R * targetEff;
+            }
+
+            QuadraticProgramming& slackVariable(Eigen::MatrixXd& W)
             {
                 _opt._H.block(_nP + _nC, _nP + _nC, _nS, _nS) = Eigen::Map<MatrixRowMajor>(W.data(), _nS, _nS);
                 return *this;
             }
 
             /* Equality Constraints */
-            QuadraticProgramming& modelDynamics(const spatial::RN<Params::quadratic_programming::nV()>& state)
+            QuadraticProgramming& modelDynamics(const spatial::RN<Params::quadratic_programming::nP()>& state)
             {
                 // Constraints dimensions
                 size_t start = _opt._A.rows(), size = _nP;
@@ -125,21 +155,21 @@ namespace control_lib {
                 return *this;
             }
 
-            void modelDynamicsImpl(const spatial::RN<Params::quadratic_programming::nV()>& state, const size_t& start, const size_t& size)
+            void modelDynamicsImpl(const spatial::RN<Params::quadratic_programming::nP()>& state, const size_t& start, const size_t& size)
             {
                 _opt._A.block(start, 0, size, _d) << Eigen::Map<MatrixRowMajor>(_model->inertiaMatrix(state._pos).data(), _nP, _nP),
-                    Eigen::Map<MatrixRowMajor>(_model->selectionMatrix().data(), _nC, _nC),
-                    Eigen::Matrix<double, Params::quadratic_programming::nV(), Params::quadratic_programming::nS(), Eigen::RowMajor>::Zero();
+                    -Eigen::Map<MatrixRowMajor>(_model->selectionMatrix().data(), _nC, _nC),
+                    Eigen::Matrix<double, Params::quadratic_programming::nP(), Params::quadratic_programming::nS(), Eigen::RowMajor>::Zero();
 
-                _opt._lbA.segment(start, size) = _model->nonLinearEffects(state._pos, state._vel);
+                _opt._lbA.segment(start, size) = -_model->nonLinearEffects(state._pos, state._vel);
                 _opt._ubA.segment(start, size) = _opt._lbA.segment(start, size);
             }
 
             template <typename Target>
-            QuadraticProgramming& inverseKinematics(const spatial::RN<Params::quadratic_programming::nV()>& state, const Target& target)
+            QuadraticProgramming& inverseKinematics(const spatial::RN<Params::quadratic_programming::nP()>& state, const Target& target)
             {
                 // Constraints dimensions
-                size_t start = _opt._A.rows(), size = target.dim();
+                size_t start = _opt._A.rows(), size = target.dimension();
 
                 // Resize Constraint Matrix
                 _opt._A.conservativeResize(start + size, _d);
@@ -147,7 +177,7 @@ namespace control_lib {
                 _opt._ubA.conservativeResize(start + size);
 
                 // Add constraint (it gets update every time step)
-                _constraints.push_back(std::bind(&QuadraticProgramming<Params, Model>::inverseKinematicsImpl, this, std::placeholders::_1, target.velocity(), start, size));
+                _constraints.push_back(std::bind(&QuadraticProgramming<Params, Model>::inverseKinematicsImpl, this, std::placeholders::_1, target.velocity().segment(0, size), start, size));
 
                 // First matrix filling
                 _constraints.back()(state);
@@ -155,23 +185,23 @@ namespace control_lib {
                 return *this;
             }
 
-            void inverseKinematicsImpl(const spatial::RN<Params::quadratic_programming::nV()>& state, Eigen::Ref<const Eigen::VectorXd> targetVel, const size_t& start, const size_t& size)
+            void inverseKinematicsImpl(const spatial::RN<Params::quadratic_programming::nP()>& state, Eigen::Ref<const Eigen::VectorXd> targetVel, const size_t& start, const size_t& size)
             {
-                std::cout << "hello" << std::endl;
+                // std::cout << "qp" << std::endl;
+                // std::cout << targetVel.transpose() << std::endl;
                 _opt._A.block(start, 0, size, _d) << _dt * Eigen::Map<MatrixRowMajor>(_model->jacobian(state._pos).data(), targetVel.size(), _nP),
                     MatrixRowMajor::Zero(targetVel.size(), _nP),
-                    -Eigen::Matrix<double, Params::quadratic_programming::nS(), Params::quadratic_programming::nS(), Eigen::RowMajor>::Identity();
+                    Eigen::Matrix<double, Params::quadratic_programming::nS(), Params::quadratic_programming::nS(), Eigen::RowMajor>::Identity();
 
                 _opt._lbA.segment(start, size) = targetVel - _model->jacobian(state._pos) * _model->velocity(); // _model->velocity() being the velocity at the previous step
-                std::cout << "hello" << std::endl;
                 _opt._ubA.segment(start, size) = _opt._lbA.segment(start, size);
             }
 
             template <typename Target>
-            QuadraticProgramming& inverseDynamics(const spatial::RN<Params::quadratic_programming::nV()>& state, const Target& target)
+            QuadraticProgramming& inverseDynamics(const spatial::RN<Params::quadratic_programming::nP()>& state, const Target& target)
             {
                 // Constraints dimensions
-                size_t start = _opt._A.rows(), size = target.dim();
+                size_t start = _opt._A.rows(), size = target.dimension();
 
                 // Resize Constraint Matrix
                 _opt._A.conservativeResize(start + size, _d);
@@ -187,7 +217,7 @@ namespace control_lib {
                 return *this;
             }
 
-            void inverseDynamicsImpl(const spatial::RN<Params::quadratic_programming::nV()>& state, Eigen::Ref<const Eigen::VectorXd> targetAcc, const size_t& start, const size_t& size)
+            void inverseDynamicsImpl(const spatial::RN<Params::quadratic_programming::nP()>& state, Eigen::Ref<const Eigen::VectorXd> targetAcc, const size_t& start, const size_t& size)
             {
                 _opt._A.block(start, 0, size, _d) << Eigen::Map<MatrixRowMajor>(_model->jacobian(state._pos).data(), targetAcc.size(), _nP),
                     MatrixRowMajor::Zero(targetAcc.size(), _nC),
@@ -198,7 +228,7 @@ namespace control_lib {
             }
 
             /* Inequality Constraints */
-            QuadraticProgramming& positionLimits(const spatial::RN<Params::quadratic_programming::nV()>& state)
+            QuadraticProgramming& positionLimits(const spatial::RN<Params::quadratic_programming::nP()>& state)
             {
                 // Constraints dimensions
                 size_t start = _opt._A.rows(), size = _nP;
@@ -217,7 +247,7 @@ namespace control_lib {
                 return *this;
             }
 
-            void positionLimitsImpl(const spatial::RN<Params::quadratic_programming::nV()>& state, Eigen::Ref<const Eigen::VectorXd> targetAcc, const size_t& start, const size_t& size)
+            void positionLimitsImpl(const spatial::RN<Params::quadratic_programming::nP()>& state, const size_t& start, const size_t& size)
             {
                 _opt._A.block(start, 0, size, _d) << 0.5 * std::pow(_dt, 2) * Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>::Identity(_nP, _nP),
                     Eigen::Matrix<double, Params::quadratic_programming::nP(), Params::quadratic_programming::nC() + Params::quadratic_programming::nS(), Eigen::RowMajor>::Zero();
@@ -226,7 +256,7 @@ namespace control_lib {
                 _opt._ubA.segment(start, size) = _model->positionUpper() - state._pos - _dt * state._vel;
             }
 
-            QuadraticProgramming& velocityLimits(const spatial::RN<Params::quadratic_programming::nV()>& state)
+            QuadraticProgramming& velocityLimits(const spatial::RN<Params::quadratic_programming::nP()>& state)
             {
                 // Constraints dimensions
                 size_t start = _opt._A.rows(), size = _nP;
@@ -245,7 +275,7 @@ namespace control_lib {
                 return *this;
             }
 
-            void velocityLimitsImpl(const spatial::RN<Params::quadratic_programming::nV()>& state, Eigen::Ref<const Eigen::VectorXd> targetAcc, const size_t& start, const size_t& size)
+            void velocityLimitsImpl(const spatial::RN<Params::quadratic_programming::nP()>& state, const size_t& start, const size_t& size)
             {
                 _opt._A.block(start, 0, size, _d) << _dt * Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>::Identity(_nP, _nP),
                     Eigen::Matrix<double, Params::quadratic_programming::nP(), Params::quadratic_programming::nC() + Params::quadratic_programming::nS(), Eigen::RowMajor>::Zero();
@@ -278,8 +308,12 @@ namespace control_lib {
             }
 
             /* Control */
-            void update(const spatial::RN<Params::quadratic_programming::nV()>& state) override
+            void update(const spatial::RN<Params::quadratic_programming::nP()>& state) override
             {
+                // update objectives
+                for (auto& objective : _objectives)
+                    objective();
+
                 // Update constraints
                 for (auto& constraint : _constraints)
                     constraint(state);
@@ -288,16 +322,16 @@ namespace control_lib {
                 _opt.setRecalculation(100).optimize();
 
                 // Allocate solution
-                _u = _opt.solution().segment(_nP, _nP);
+                _u = _opt.solution().segment(_nP, _nC);
             }
 
             // Optimizer
             optimization_lib::QpoasesOptimizer<qpOASES::SQProblem> _opt;
 
         protected:
-            using AbstractController<Params, spatial::RN<Params::quadratic_programming::nV()>>::_dt;
-            using AbstractController<Params, spatial::RN<Params::quadratic_programming::nV()>>::_u;
-            using AbstractController<Params, spatial::RN<Params::quadratic_programming::nV()>>::_d;
+            using AbstractController<Params, spatial::RN<Params::quadratic_programming::nP()>>::_dt;
+            using AbstractController<Params, spatial::RN<Params::quadratic_programming::nP()>>::_u;
+            using AbstractController<Params, spatial::RN<Params::quadratic_programming::nP()>>::_d;
 
             // Problem and slack variable dimensions
             size_t _nP, _nC, _nS;
@@ -305,8 +339,9 @@ namespace control_lib {
             // Model
             std::shared_ptr<Model> _model;
 
-            // Constraints
-            std::vector<std::function<void(const spatial::RN<Params::quadratic_programming::nV()>&)>> _constraints;
+            // Objectives & Constraints
+            std::vector<std::function<void()>> _objectives;
+            std::vector<std::function<void(const spatial::RN<Params::quadratic_programming::nP()>&)>> _constraints;
         };
     } // namespace controllers
 

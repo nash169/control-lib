@@ -31,6 +31,8 @@
 namespace control_lib {
     namespace defaults {
         struct feedback {
+            // Output dimension
+            PARAM_SCALAR(size_t, d, 1);
         };
     } // namespace defaults
 
@@ -38,7 +40,10 @@ namespace control_lib {
         template <typename Params, typename Space>
         class Feedback : public AbstractController<Params, Space> {
         public:
-            Feedback() : AbstractController<Params, Space>() {}
+            Feedback() : AbstractController<Params, Space>()
+            {
+                _d = Params::feedback::d();
+            }
 
             Feedback& setStiffness(const Eigen::MatrixXd& K)
             {
@@ -64,7 +69,7 @@ namespace control_lib {
 
             void update(const Space& x) override
             {
-                _u.setZero();
+                _u.setZero(_d);
                 Eigen::Matrix<double, Space::dimension(), 1> err;
 
                 // Proportional

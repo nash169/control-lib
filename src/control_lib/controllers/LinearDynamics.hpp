@@ -41,10 +41,20 @@ namespace control_lib {
         public:
             LinearDynamics() : AbstractController<Params, Space>()
             {
+                _d = Space::dimension();
                 _A = Eigen::MatrixXd::Identity(Space::dimension(), _d);
+                _u.setZero(_d);
             }
 
-            const Eigen::MatrixXd& dynamicsMatrix() const { return _A; }
+            const Eigen::MatrixXd& dynamicsMatrix() const
+            {
+                return _A;
+            }
+
+            const Eigen::VectorXd& velocity() const
+            {
+                return _u;
+            }
 
             LinearDynamics& setDynamicsMatrix(const Eigen::MatrixXd& A)
             {

@@ -33,7 +33,7 @@ namespace control_lib {
     namespace defaults {
         struct controller {
             // Integration time step controller
-            PARAM_SCALAR(double, dt, 0.001);
+            PARAM_SCALAR(double, dt, 0.01);
         };
     } // namespace defaults
 
