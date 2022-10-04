@@ -36,7 +36,7 @@
 #include "control_lib/controllers/AbstractController.hpp"
 #include "control_lib/spatial/RN.hpp"
 
-using MatrixRowMajor = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
+// using MatrixRowMajor = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
 
 namespace control_lib {
     namespace defaults {
@@ -62,7 +62,7 @@ namespace control_lib {
                 _d = _nP + _nC + _nS;
 
                 // init hessian matrix
-                _opt.setHessianMatrix(MatrixRowMajor::Zero(_d, _d));
+                _opt.setHessianMatrix(Eigen::MatrixXd::Zero(_d, _d));
 
                 // init gradient vector
                 _opt.setGradientVector(Eigen::VectorXd::Zero(_d));
@@ -81,7 +81,7 @@ namespace control_lib {
             /* Objectives */
             QuadraticProgramming& accelerationMinimization(Eigen::MatrixXd& Q)
             {
-                _opt._H.block(0, 0, _nP, _nP) = Eigen::Map<MatrixRowMajor>(Q.data(), _nP, _nP);
+                _opt._H.block(0, 0, _nP, _nP) = Q;
                 return *this;
             }
 
@@ -107,7 +107,7 @@ namespace control_lib {
 
             QuadraticProgramming& effortMinimization(Eigen::MatrixXd& R)
             {
-                _opt._H.block(_nP, _nP, _nC, _nC) = Eigen::Map<MatrixRowMajor>(R.data(), _nC, _nC);
+                _opt._H.block(_nP, _nP, _nC, _nC) = R;
                 return *this;
             }
 
@@ -133,7 +133,7 @@ namespace control_lib {
 
             QuadraticProgramming& slackVariable(Eigen::MatrixXd& W)
             {
-                _opt._H.block(_nP + _nC, _nP + _nC, _nS, _nS) = Eigen::Map<MatrixRowMajor>(W.data(), _nS, _nS);
+                _opt._H.block(_nP + _nC, _nP + _nC, _nS, _nS) = W;
                 return *this;
             }
 
@@ -159,9 +159,9 @@ namespace control_lib {
 
             void modelDynamicsImpl(const spatial::RN<Params::quadratic_programming::nP()>& state, const size_t& start, const size_t& size)
             {
-                _opt._A.block(start, 0, size, _d) << Eigen::Map<MatrixRowMajor>(_model->inertiaMatrix(state._pos).data(), _nP, _nP),
-                    -Eigen::Map<MatrixRowMajor>(_model->selectionMatrix().data(), _nC, _nC),
-                    Eigen::Matrix<double, Params::quadratic_programming::nP(), Params::quadratic_programming::nS(), Eigen::RowMajor>::Zero();
+                _opt._A.block(start, 0, size, _d) << _model->inertiaMatrix(state._pos),
+                    -_model->selectionMatrix(),
+                    Eigen::Matrix<double, Params::quadratic_programming::nP(), Params::quadratic_programming::nS()>::Zero();
 
                 _opt._lbA.segment(start, size) = -_model->nonLinearEffects(state._pos, state._vel);
                 _opt._ubA.segment(start, size) = _opt._lbA.segment(start, size);
@@ -191,9 +191,9 @@ namespace control_lib {
             {
                 // std::cout << "qp" << std::endl;
                 // std::cout << targetVel.transpose() << std::endl;
-                _opt._A.block(start, 0, size, _d) << _dt * Eigen::Map<MatrixRowMajor>(_model->jacobian(state._pos).data(), targetVel.size(), _nP),
-                    MatrixRowMajor::Zero(targetVel.size(), _nP),
-                    Eigen::Matrix<double, Params::quadratic_programming::nS(), Params::quadratic_programming::nS(), Eigen::RowMajor>::Identity();
+                _opt._A.block(start, 0, size, _d) << _dt * _model->jacobian(state._pos),
+                    Eigen::MatrixXd::Zero(targetVel.size(), _nP),
+                    -Eigen::Matrix<double, Params::quadratic_programming::nS(), Params::quadratic_programming::nS()>::Identity();
 
                 _opt._lbA.segment(start, size) = targetVel - _model->jacobian(state._pos) * _model->velocity(); // _model->velocity() being the velocity at the previous step
                 _opt._ubA.segment(start, size) = _opt._lbA.segment(start, size);
@@ -221,9 +221,9 @@ namespace control_lib {
 
             void inverseDynamicsImpl(const spatial::RN<Params::quadratic_programming::nP()>& state, Eigen::Ref<const Eigen::VectorXd> targetAcc, const size_t& start, const size_t& size)
             {
-                _opt._A.block(start, 0, size, _d) << Eigen::Map<MatrixRowMajor>(_model->jacobian(state._pos).data(), targetAcc.size(), _nP),
-                    MatrixRowMajor::Zero(targetAcc.size(), _nC),
-                    -Eigen::Matrix<double, Params::quadratic_programming::nS(), Params::quadratic_programming::nS(), Eigen::RowMajor>::Identity();
+                _opt._A.block(start, 0, size, _d) << _model->jacobian(state._pos),
+                    Eigen::MatrixXd::Zero(targetAcc.size(), _nC),
+                    -Eigen::Matrix<double, Params::quadratic_programming::nS(), Params::quadratic_programming::nS()>::Identity();
                 // std::cout << "hello" << std::endl;
                 _opt._lbA.segment(start, size) = targetAcc - _model->jacobianDerivative(state._pos, state._vel) * state._vel;
                 _opt._ubA.segment(start, size) = _opt._lbA.segment(start, size);
@@ -251,8 +251,8 @@ namespace control_lib {
 
             void positionLimitsImpl(const spatial::RN<Params::quadratic_programming::nP()>& state, const size_t& start, const size_t& size)
             {
-                _opt._A.block(start, 0, size, _d) << 0.5 * std::pow(_dt, 2) * Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>::Identity(_nP, _nP),
-                    Eigen::Matrix<double, Params::quadratic_programming::nP(), Params::quadratic_programming::nC() + Params::quadratic_programming::nS(), Eigen::RowMajor>::Zero();
+                _opt._A.block(start, 0, size, _d) << 0.5 * std::pow(_dt, 2) * Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>::Identity(_nP, _nP),
+                    Eigen::Matrix<double, Params::quadratic_programming::nP(), Params::quadratic_programming::nC() + Params::quadratic_programming::nS()>::Zero();
 
                 _opt._lbA.segment(start, size) = _model->positionLower() - state._pos - _dt * state._vel;
                 _opt._ubA.segment(start, size) = _model->positionUpper() - state._pos - _dt * state._vel;
@@ -279,8 +279,8 @@ namespace control_lib {
 
             void velocityLimitsImpl(const spatial::RN<Params::quadratic_programming::nP()>& state, const size_t& start, const size_t& size)
             {
-                _opt._A.block(start, 0, size, _d) << _dt * Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>::Identity(_nP, _nP),
-                    Eigen::Matrix<double, Params::quadratic_programming::nP(), Params::quadratic_programming::nC() + Params::quadratic_programming::nS(), Eigen::RowMajor>::Zero();
+                _opt._A.block(start, 0, size, _d) << _dt * Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>::Identity(_nP, _nP),
+                    Eigen::Matrix<double, Params::quadratic_programming::nP(), Params::quadratic_programming::nC() + Params::quadratic_programming::nS()>::Zero();
 
                 _opt._lbA.segment(start, size) = _model->velocityLower() - state._vel;
                 _opt._ubA.segment(start, size) = _model->velocityUpper() - state._vel;
