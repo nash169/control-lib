@@ -42,7 +42,9 @@ namespace control_lib {
         public:
             Feedback() : AbstractController<Params, Space>()
             {
-                _d = Params::feedback::d();
+                // _d = Params::feedback::d();
+                _d = Space::dimension();
+                _u.setZero(_d);
             }
 
             Feedback& setStiffness(const Eigen::MatrixXd& K)
@@ -80,7 +82,7 @@ namespace control_lib {
 
                 // Derivative
                 if (_D.size())
-                    _u -= _D * (x._vel - _xr._vel);
+                    _u -= _D * (x._v - _xr._v);
 
                 // Integral
                 if (_I.size()) {

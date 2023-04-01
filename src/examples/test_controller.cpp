@@ -25,9 +25,9 @@
 #include <control_lib/controllers/Feedback.hpp>
 #include <control_lib/controllers/LinearDynamics.hpp>
 
-#include <control_lib/spatial/RN.hpp>
-#include <control_lib/spatial/SE3.hpp>
-#include <control_lib/spatial/SO3.hpp>
+#include <control_lib/spatial/R.hpp>
+#include <control_lib/spatial/SE.hpp>
+#include <control_lib/spatial/SO.hpp>
 
 #include <iostream>
 
@@ -52,12 +52,12 @@ int main(int argc, char const* argv[])
     oDes << 0.591427, -0.62603, 0.508233,
         0.689044, 0.719749, 0.0847368,
         -0.418848, 0.300079, 0.857041;
-    spatial::SE3 sDes(oDes, xDes);
+    spatial::SE<3> sDes(oDes, xDes);
 
     // Current state
-    spatial::SE3 sCurr(Eigen::Matrix3d::Identity(), Eigen::Vector3d::Zero());
+    spatial::SE<3> sCurr(Eigen::Matrix3d::Identity(), Eigen::Vector3d::Zero());
 
-    controllers::LinearDynamics<Params, spatial::SE3> ctr1;
+    controllers::LinearDynamics<Params, spatial::SE<3>> ctr1;
 
     std::cout << ctr1.dimension() << std::endl;
     // ctr1.setReference(sDes);
@@ -66,7 +66,7 @@ int main(int argc, char const* argv[])
 
     // sDes._vel = ctr1.action(sCurr);
     // sCurr._vel = Eigen::VectorXd::Random(6);
-    // controllers::Feedback<Params, spatial::SE3> ctr2;
+    // controllers::Feedback<Params, spatial::SE<3>> ctr2;
     // ctr2
     //     // .setStiffness(Eigen::MatrixXd::Identity(6, 6))
     //     .setDamping(Eigen::MatrixXd::Identity(6, 6))
@@ -76,7 +76,7 @@ int main(int argc, char const* argv[])
     // std::cout << ctr2.action(sCurr).transpose() << std::endl;
 
     // std::cout << "test" << std::endl;
-    // spatial::RN<3> a(Eigen::Vector3d::Random()), b(Eigen::Vector3d::Random());
+    // spatial::R<3> a(Eigen::Vector3d::Random()), b(Eigen::Vector3d::Random());
     // std::cout << (a - b).transpose() << std::endl;
     // std::cout << (a._pos - b._pos).transpose() << std::endl;
 

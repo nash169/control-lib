@@ -23,7 +23,7 @@
 */
 
 #include <control_lib/controllers/QuadraticProgramming.hpp>
-#include <control_lib/spatial/RN.hpp>
+#include <control_lib/spatial/R.hpp>
 #include <iostream>
 
 using namespace control_lib;
@@ -121,9 +121,9 @@ struct TaskTarget {
 int main(int argc, char const* argv[])
 {
     // State
-    spatial::RN<Params::quadratic_programming::nP()> state;
-    state._pos = Eigen::Matrix<double, Params::quadratic_programming::nP(), 1>::Random();
-    state._vel = Eigen::Matrix<double, Params::quadratic_programming::nP(), 1>::Random();
+    spatial::R<Params::quadratic_programming::nP()> state;
+    state._x = Eigen::Matrix<double, Params::quadratic_programming::nP(), 1>::Random();
+    state._v = Eigen::Matrix<double, Params::quadratic_programming::nP(), 1>::Random();
 
     // Robot model
     std::shared_ptr<Model> model(new Model());
@@ -157,8 +157,8 @@ int main(int argc, char const* argv[])
         .accelerationLimits()
         .effortLimits();
 
-    // std::cout << state._pos.transpose() << std::endl;
-    // std::cout << state._vel.transpose() << std::endl;
+    // std::cout << state._x.transpose() << std::endl;
+    // std::cout << state._v.transpose() << std::endl;
     // std::cout << task._velocity.transpose() << std::endl;
     // std::cout << "-" << std::endl;
 
@@ -179,8 +179,8 @@ int main(int argc, char const* argv[])
 
     std::cout << "====" << std::endl;
 
-    state._pos = Eigen::Matrix<double, Params::quadratic_programming::nP(), 1>::Random();
-    state._vel = Eigen::Matrix<double, Params::quadratic_programming::nP(), 1>::Random();
+    state._x = Eigen::Matrix<double, Params::quadratic_programming::nP(), 1>::Random();
+    state._v = Eigen::Matrix<double, Params::quadratic_programming::nP(), 1>::Random();
 
     targetTask._velocity = Eigen::Matrix<double, 3, 1>::Random();
     targetTask._acceleration = Eigen::Matrix<double, 3, 1>::Random();

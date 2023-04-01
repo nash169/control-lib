@@ -22,31 +22,31 @@
     SOFTWARE.
 */
 
-#ifndef CONTROLLIB_SPATIAL_RN_HPP
-#define CONTROLLIB_SPATIAL_RN_HPP
+#ifndef CONTROLLIB_SPATIAL_R_HPP
+#define CONTROLLIB_SPATIAL_R_HPP
 
 #include <Eigen/Geometry>
 
 namespace control_lib {
     namespace spatial {
         template <size_t N>
-        struct RN {
+        struct R {
             /* Init via translation and orientation */
-            RN(const Eigen::Matrix<double, N, 1>& pos) : _pos(pos) {}
+            R(const Eigen::Matrix<double, N, 1>& pos) : _x(pos) {}
 
-            RN() = default;
+            R() = default;
 
             /* Space elements difference */
-            Eigen::Matrix<double, N, 1> operator-(RN const& obj) const { return _pos - obj._pos; }
+            Eigen::Matrix<double, N, 1> operator-(R const& obj) const { return _x - obj._x; }
 
             /* Space dimension */
             constexpr static size_t dimension() { return N; }
 
             /* Tangent and contagent plane elements (optionals) */
-            Eigen::Matrix<double, N, 1> _pos, _vel, _acc, _eff;
+            Eigen::Matrix<double, N, 1> _x, _v, _a, _f;
         };
     } // namespace spatial
 
 } // namespace control_lib
 
-#endif // CONTROLLIB_SPATIAL_RN_HPP
+#endif // CONTROLLIB_SPATIAL_R_HPP
