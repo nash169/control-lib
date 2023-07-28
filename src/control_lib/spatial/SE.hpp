@@ -34,6 +34,12 @@ namespace control_lib {
             /* Init via translation and orientation */
             SE(const Eigen::Matrix<double, N, N>& rot, const Eigen::Matrix<double, N, 1>& trans) : _rot(rot), _trans(trans) {}
 
+            /* Init via vector representation */
+            SE(const Eigen::Matrix<double, N + N*(N-1)/2, 1>& vec) {
+                std::cout << "Generic constructor not implemented yet." << std::endl;
+            }
+
+
             /* Default constructor */
             SE() = default;
 
@@ -69,11 +75,8 @@ namespace control_lib {
             Eigen::Matrix<double, 2 * N, 1> logarithm() { return logarithm(*this); }
         };
 
-        // template <>
-        // struct SE<3> {
-        //     /* Init via vector representation */
-        //     SE(const Eigen::Matrix<double, 6, 1>& x) : _trans(x.head(3)), _rot(Eigen::AngleAxisd(x.tail(3).norm(), x.tail(3).normalized())) {}
-        // };
+        template <>
+        SE<3>::SE(const Eigen::Matrix<double, 6, 1>& vec) : _trans(vec.head(3)), _rot(Eigen::AngleAxisd(vec.tail(3).norm(), vec.tail(3).normalized())) {}
 
         template <>
         Eigen::Matrix<double, 6, 1> SE<3>::logarithm(const SE<3>& pose)
