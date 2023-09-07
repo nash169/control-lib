@@ -35,16 +35,19 @@ namespace control_lib {
             SE(const Eigen::Matrix<double, N, N>& rot, const Eigen::Matrix<double, N, 1>& trans) : _rot(rot), _trans(trans) {}
 
             /* Init via vector representation */
-            SE(const Eigen::Matrix<double, N + N*(N-1)/2, 1>& vec) {
+            SE(const Eigen::Matrix<double, N + N*(N - 1) / 2, 1>& vec)
+            {
                 std::cout << "Generic constructor not implemented yet." << std::endl;
             }
-
 
             /* Default constructor */
             SE() = default;
 
+            /* Space dimension */
+            constexpr static size_t dimension() { return N + N * (N - 1) / 2; }
+
             /* Space elements difference (the right operator gives a vector in the tangent space attached to the current point) */
-            Eigen::Matrix<double, 2 * N, 1> operator-(SE const& obj) const
+            Eigen::Matrix<double, dimension(), 1> operator-(SE const& obj) const
             {
                 if constexpr (Left == true)
                     return obj.actInvLeft(*this).logarithm();
@@ -52,27 +55,24 @@ namespace control_lib {
                     return obj.actInvRight(*this).logarithm();
             }
 
-            /* Space dimension */
-            constexpr static size_t dimension() { return 2 * N; }
-
             /* Translation & rotation */
             Eigen::Matrix<double, N, 1> _trans;
             Eigen::Matrix<double, N, N> _rot;
 
             /* Tangent (_t = velocity, _tt = acceleration) and cotangent space (_ct = effort) elements (optionals) */
-            Eigen::Matrix<double, 2 * N, 1> _v, _a, _f;
+            Eigen::Matrix<double, dimension(), 1> _v, _a, _f;
 
             SE act(const SE& pose) const { return SE(_rot * pose._rot, _trans + _rot * pose._trans); } // to check
 
             SE actInvRight(const SE& pose) const { return SE(_rot.transpose() * pose._rot, _rot.transpose() * (pose._trans - _trans)); }
             SE actInvLeft(const SE& pose) const { return SE(pose._rot * _rot.transpose(), pose._trans - pose._rot * _rot.transpose() * _trans); } // to check
 
-            Eigen::Matrix<double, 2 * N, 1> logarithm(const SE& pose)
+            Eigen::Matrix<double, dimension(), 1> logarithm(const SE& pose)
             {
-                return Eigen::VectorXd::Zero(2 * N);
+                return Eigen::VectorXd::Zero(dimension());
             }
 
-            Eigen::Matrix<double, 2 * N, 1> logarithm() { return logarithm(*this); }
+            Eigen::Matrix<double, dimension(), 1> logarithm() { return logarithm(*this); }
         };
 
         template <>
