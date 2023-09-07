@@ -32,8 +32,8 @@
 namespace control_lib {
     namespace defaults {
         struct controller {
-            // Integration time step controller
-            PARAM_SCALAR(double, dt, 0.01);
+            // Time step controller
+            PARAM_SCALAR(double, dt, 1.0);
         };
     } // namespace defaults
 
@@ -43,38 +43,47 @@ namespace control_lib {
         public:
             AbstractController() : _dt(Params::controller::dt()) {}
 
+            // Output of dimension of the controller (the input dimension is automatically defined by the dimension of Space)
             const size_t& dimension() const { return _d; };
 
+            // Controller time step (this is used in different ways depending on the controller type)
             const double& step() const { return _dt; };
 
+            // Controller Target (this must be an element of Space)
             const Space& reference() const { return _xr; };
 
+            // Set controller output dimension
             AbstractController& setDimension(const size_t& d)
             {
                 _d = d;
                 return *this;
             }
 
+            // Set controller time step
             AbstractController& setStep(const double& dt)
             {
                 _dt = dt;
                 return *this;
             }
 
+            // Set controller reference
             AbstractController& setReference(const Space& x)
             {
                 _xr = x;
                 return *this;
             }
 
+            // Actual controller computation (must be overridden)
             virtual void update(const Space& x) = 0;
 
+            // Update controller internal state and return reference to output (define it as overload operator())
             const Eigen::VectorXd& action(const Space& x)
             {
                 update(x);
                 return _u;
             }
 
+            // Return reference to output
             const Eigen::VectorXd& output() const
             {
                 return _u;
