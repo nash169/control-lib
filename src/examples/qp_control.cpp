@@ -155,7 +155,8 @@ int main(int argc, char const* argv[])
         .positionLimits(state)
         .velocityLimits(state)
         .accelerationLimits()
-        .effortLimits();
+        .effortLimits()
+        .init();
 
     // std::cout << state._x.transpose() << std::endl;
     // std::cout << state._v.transpose() << std::endl;
