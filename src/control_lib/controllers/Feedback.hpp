@@ -42,8 +42,9 @@ namespace control_lib {
         public:
             Feedback() : AbstractController<Params, Space>()
             {
-                // _d = Params::feedback::d();
-                _d = Space::dimension();
+                // this dimension to the output's dimension
+                // feedback matrices should have size (_d, Space::dimension())
+                _d = Params::feedback::d();
                 _u.setZero(_d);
             }
 
