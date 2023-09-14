@@ -83,6 +83,12 @@ namespace control_lib {
                 return _u;
             }
 
+            const Eigen::VectorXd& operator()(const Space& x)
+            {
+                update(x);
+                return _u;
+            }
+
             // Return reference to output
             const Eigen::VectorXd& output() const
             {
