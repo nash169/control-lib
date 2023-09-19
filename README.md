@@ -1,83 +1,43 @@
 # Control Library
-Library containing controllers with generic application
+Geometry-based controller suite. 
+The geometry used for each controller adapts automatically to the underlying space on which it operates.
+The library is fully templated for blazing fast performance and great versatility.
 
-### Authors/Maintainers
-- Bernardo Fichera (bernardo.fichera@epfl.ch)
+## Authors/Maintainers
+- Bernardo Fichera (bernardo.fichera@gmail.com)
 
-### Available Controller
+## Available Controller
 - Feedback
-- Linear Dynamics
-- Linear Quadratic Regulator
+- Quadratic Programming Controller
+- Linear Quadratic Regulator (testing)
 
-### Dependencies
-This library depends on **Eigen**
-```sh
-git clone https://gitlab.com/libeigen/eigen.git (git@gitlab.com:libeigen/eigen.git)
-cd eigen && mkdir build && cmake .. && (sudo) make install
-```
+### Feedback
+Classical feedback control. The proportional, derivative or integral terms can be selectively activated by setting the respective gains matrices. Support generic manifolds.
 
-### Installation
-Clone the repository including the submodules
-```sh
-git clone --recursive https://github.com/nash169/control-lib.git (git@github.com:nash169/control-lib.git)
-```
-**control-lib** relies on WAF compilation tool.
-Arch provides an updated version of WAF exec in the standard repo
-```sh
-sudo pacman -S waf
-```
-For other distros it is better to download the latest version from the official website and move the executable in the library repo
-```sh
-wget 'https://waf.io/waf-2.0.23'
-mv waf-2.0.19waf-2.0.23 waf && mv waf /path/to/control-lib
-cd /path/to/kernel-lib
-chmod +x waf
-```
-Compile and install using waf commands
-```sh
-waf (./waf) configure build
-```
-or
-```sh
-waf (./waf) configure && waf (./waf)
-```
-Install the library (optional)
-```sh
-(sudo) waf (./waf) install
-```
-If you want to make clean installation
-```sh
-(sudo) waf (./waf) distclean configure build install
-```
+### Quadratic Programming Controller
+Quadratic Programming control. Support only Euclidean space. This controller requires [optmization-lib](https://github.com/nash169/optimization-lib).
 
-#### Compilation options
-In order to set the desired compiler define the environment variable CXX=<g++,clang++,icpc> (gnu, clang and intel compiler respectively).
+$$\min_{\mathbf{z}} \quad \frac{1}{2} \mathbf{z}^T \mathbf{W} \mathbf{z} + \mathbf{w}^T \mathbf{z}$$
 
-It is highly recommended to compile with AVX support
-```sh
-waf (./waf) configure --release
-```
-Compile static library (default option)
-```sh
-waf (./waf) configure --static
-```
-Compile shared library
-```sh
-waf (./waf) configure --shared
-```
-Define a specific installation path
-```sh
-waf (./waf) configure --prefix=/path/to/install/folder
-```
+$$\text{s.t.} \quad \mathbf{C}_E \mathbf{z} + \mathbf{c}_E = \mathbf{0}, \quad \mathbf{C}_I \mathbf{z} + \mathbf{c}_I \ge \mathbf{0}.$$
+$$\mathbf{W} = \begin{bmatrix}
+        \mathbf{Q} & 0     & 0     \\
+        0     & \mathbf{R} & 0     \\
+        0     & 0     & \mathbf{I} \\
+    \end{bmatrix},
+    \qquad
+    \v{w}^T = \begin{bmatrix}
+        -\ddot{\mathbf{q}}_d^T \mathbf{Q} & 0 & 0
+    \end{bmatrix},$$
 
-### Finding the library
-In order to find and link the lib to other projects copy and paste the following file into the waf tools
-```sh
-scripts/controllib.py
-```
+**Model Based**
 
-### Examples
-Once the library is compiled all the examples can be found in
-```sh
-./build/src/examples/
-```
+**Model Free**
+
+### Linear Quadratic Regulator (testing)
+Linear Quadratic Regulator. Support only Euclidean space.
+
+## Available Spaces
+- Euclidean
+- Special Orthogonal Group
+- Special Euclidean Group
