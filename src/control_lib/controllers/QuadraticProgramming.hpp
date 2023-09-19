@@ -44,10 +44,10 @@ namespace control_lib {
             // State dimension
             PARAM_SCALAR(size_t, nP, 1);
 
-            // Control input dimension
+            // Control input dimension (optional)
             PARAM_SCALAR(size_t, nC, 1);
 
-            // Slack variable dimension
+            // Slack variable dimension (optional)
             PARAM_SCALAR(size_t, nS, 0);
         };
     } // namespace defaults
