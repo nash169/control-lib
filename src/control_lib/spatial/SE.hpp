@@ -26,6 +26,7 @@
 #define CONTROLLIB_SPATIAL_SE_HPP
 
 #include <Eigen/Geometry>
+#include <iostream>
 
 namespace control_lib {
     namespace spatial {
