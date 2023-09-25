@@ -63,6 +63,14 @@ namespace control_lib {
             /* Tangent (_t = velocity, _tt = acceleration) and cotangent space (_ct = effort) elements (optionals) */
             Eigen::Matrix<double, dimension(), 1> _v, _a, _f;
 
+            // SE actionInverse(const SE& x, const SE& x) const
+            // {
+            //     if constexpr (Left == true)
+            //         return SE(_rot.transpose() * pose._rot, _rot.transpose() * (pose._trans - _trans));
+            //     else
+            //         return SE(pose._rot * _rot.transpose(), pose._trans - pose._rot * _rot.transpose() * _trans);
+            // }
+
             SE act(const SE& pose) const { return SE(_rot * pose._rot, _trans + _rot * pose._trans); } // to check
 
             SE actInvRight(const SE& pose) const { return SE(_rot.transpose() * pose._rot, _rot.transpose() * (pose._trans - _trans)); }

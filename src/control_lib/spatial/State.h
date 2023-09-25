@@ -7,11 +7,13 @@ namespace control_lib {
     // Forward declaration of available manifolds
     namespace spatial {
         template <size_t N>
-        struct RN;
+        struct R;
 
-        struct SE3;
+        template <size_t N>
+        struct SE;
 
-        struct SO3;
+        template <size_t N>
+        struct SO;
     } // namespace spatial
 
     // Generic State
@@ -20,7 +22,7 @@ namespace control_lib {
 
     // Euclidean space specialization
     template <size_t N>
-    struct State<spatial::RN<N>> {
+    struct State<spatial::R<N>> {
         Eigen::Matrix<double, N, 1> _pos, _vel, _acc, _eff;
     };
 
@@ -31,6 +33,14 @@ namespace control_lib {
 
         State(const Eigen::Vector3d& translation, const Eigen::Matrix3d& rotation)
             : trans(translation), rot(rotation) {}
+
+        // Eigen::Matrix<double, dimension(), 1> operator-(SE const& obj) const
+        // {
+        //     if constexpr (Left == true)
+        //         return obj.actInvLeft(*this).logarithm();
+        //     else
+        //         return obj.actInvRight(*this).logarithm();
+        // }
 
         /* Translation & rotation */
         Eigen::Vector3d trans;
