@@ -142,21 +142,21 @@ int main(int argc, char const* argv[])
 
     // std::cout << targetConfig._effort.transpose() << std::endl;
 
-    ctr
-        .setModel(model)
-        .accelerationMinimization(Q)
-        .accelerationTracking(Q, targetConfig)
-        .effortMinimization(R)
-        .effortTracking(R, targetConfig)
-        .slackVariable(W)
-        .modelDynamics(state)
-        // .inverseKinematics(state, targetTask)
-        .inverseDynamics(state, targetTask)
-        .positionLimits(state)
-        .velocityLimits(state)
-        .accelerationLimits()
-        .effortLimits()
-        .init();
+    // ctr
+    //     .setModel(model)
+    //     .accelerationMinimization(Q)
+    //     .accelerationTracking(Q, targetConfig)
+    //     .effortMinimization(R)
+    //     .effortTracking(R, targetConfig)
+    //     .slackVariable(W)
+    //     .modelDynamics(state)
+    //     // .inverseKinematics(state, targetTask)
+    //     .inverseDynamics(state, targetTask)
+    //     .positionLimits(state)
+    //     .velocityLimits(state)
+    //     .accelerationLimits()
+    //     .effortLimits()
+    //     .init();
 
     // std::cout << state._x.transpose() << std::endl;
     // std::cout << state._v.transpose() << std::endl;

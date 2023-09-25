@@ -90,7 +90,7 @@ namespace control_lib {
             {
                 // Add objective
                 _objectives.push_back(std::bind(&QuadraticProgramming<Params, Model>::accelerationTrackingImpl, this,
-                    Q, target.acceleration().segment(0, target.acceleration().size())));
+                    Q, target.output().segment(0, target.output().size())));
 
                 // Run objective
                 _objectives.back()();
@@ -116,7 +116,7 @@ namespace control_lib {
             {
                 // Add objective
                 _objectives.push_back(std::bind(&QuadraticProgramming<Params, Model>::effortTrackingImpl, this,
-                    R, target.effort().segment(0, target.effort().size())));
+                    R, target.output().segment(0, target.output().size())));
 
                 // Run objective
                 _objectives.back()();
@@ -171,7 +171,7 @@ namespace control_lib {
             QuadraticProgramming& inverseKinematics(const spatial::R<Params::quadratic_programming::nP()>& state, const Target& target)
             {
                 // Constraints dimensions
-                size_t start = _opt._A.rows(), size = target.velocity().size();
+                size_t start = _opt._A.rows(), size = target.output().size();
 
                 // Resize Constraint Matrix
                 _opt._A.conservativeResize(start + size, _d);
@@ -179,7 +179,7 @@ namespace control_lib {
                 _opt._ubA.conservativeResize(start + size);
 
                 // Add constraint (it gets update every time step)
-                _constraints.push_back(std::bind(&QuadraticProgramming<Params, Model>::inverseKinematicsImpl, this, std::placeholders::_1, target.velocity().segment(0, size), start, size));
+                _constraints.push_back(std::bind(&QuadraticProgramming<Params, Model>::inverseKinematicsImpl, this, std::placeholders::_1, target.output().segment(0, size), start, size));
 
                 // First matrix filling
                 _constraints.back()(state);
@@ -203,7 +203,7 @@ namespace control_lib {
             QuadraticProgramming& inverseDynamics(const spatial::R<Params::quadratic_programming::nP()>& state, const Target& target)
             {
                 // Constraints dimensions
-                size_t start = _opt._A.rows(), size = target.acceleration().size();
+                size_t start = _opt._A.rows(), size = target.output().size();
 
                 // Resize Constraint Matrix
                 _opt._A.conservativeResize(start + size, _d);
@@ -211,7 +211,7 @@ namespace control_lib {
                 _opt._ubA.conservativeResize(start + size);
 
                 // Add constraint (it gets update every time step)
-                _constraints.push_back(std::bind(&QuadraticProgramming<Params, Model>::inverseDynamicsImpl, this, std::placeholders::_1, target.acceleration().segment(0, size), start, size));
+                _constraints.push_back(std::bind(&QuadraticProgramming<Params, Model>::inverseDynamicsImpl, this, std::placeholders::_1, target.output().segment(0, size), start, size));
 
                 // First matrix filling
                 _constraints.back()(state);

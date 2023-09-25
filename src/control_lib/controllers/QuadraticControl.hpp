@@ -90,7 +90,7 @@ namespace control_lib {
 
             QuadraticControl& stateReference(const Eigen::Ref<const Eigen::Matrix<double, Params::quadratic_control::nP(), 1>>& reference)
             {
-                auto gradientVector = [&]() {
+                auto gradientVector = [&, reference]() {
                     _opt._g.segment(0, Params::quadratic_control::nP()) = -2 * _opt._H.block(0, 0, Params::quadratic_control::nP(), Params::quadratic_control::nP()) * reference;
                 };
 
@@ -111,7 +111,7 @@ namespace control_lib {
             QuadraticControl& inputReference(const Eigen::Ref<const Eigen::Matrix<double, Params::quadratic_control::nC(), 1>>& reference)
             {
                 if constexpr (Params::quadratic_control::nC()) {
-                    auto gradientVector = [&]() {
+                    auto gradientVector = [&, reference]() {
                         _opt._g.segment(Params::quadratic_control::nP(), Params::quadratic_control::nC()) = -2 * _opt._H.block(Params::quadratic_control::nP(), Params::quadratic_control::nP(), Params::quadratic_control::nC(), Params::quadratic_control::nC()) * reference;
                     };
 
@@ -178,7 +178,7 @@ namespace control_lib {
                             _opt._A.block(start, 0, size, Params::quadratic_control::nP()) = _model->jacobian(state._x);
 
                             if constexpr (Params::quadratic_control::nS())
-                                _opt._A.block(start, Params::quadratic_control::nP(), size, Params::quadratic_control::nS()) = -Eigen::Matrix<double, Params::quadratic_control::nS(), Params::inverse_kinematics::nS()>::Identity();
+                                _opt._A.block(start, Params::quadratic_control::nP(), size, Params::quadratic_control::nS()) = -Eigen::Matrix<double, Params::quadratic_control::nS(), Params::quadratic_control::nS()>::Identity();
 
                             _opt._lbA.segment(start, size) = reference;
                             _opt._ubA.segment(start, size) = _opt._lbA.segment(start, size);
@@ -253,10 +253,10 @@ namespace control_lib {
                     // Add constraint (it gets update every time step)
                     auto constraintFun = [&, start](const spatial::R<Params::quadratic_control::nP()>& state) {
                         if constexpr (Params::quadratic_control::oD() == 1) {
-                            _opt._A.block(start, 0, Params::quadratic_control::nP(), Params::quadratic_control::nP()) = _dt * Eigen::Matrix<double, Params::inverse_kinematics::nP(), Params::inverse_kinematics::nP()>::Identity();
+                            _opt._A.block(start, 0, Params::quadratic_control::nP(), Params::quadratic_control::nP()) = _dt * Eigen::Matrix<double, Params::quadratic_control::nP(), Params::quadratic_control::nP()>::Identity();
 
                             if constexpr (Params::quadratic_control::nS())
-                                _opt._A.block(start, Params::quadratic_control::nP(), Params::quadratic_control::nP(), Params::quadratic_control::nS()) = Eigen::Matrix<double, Params::inverse_kinematics::nP(), Params::inverse_kinematics::nS()>::Zero();
+                                _opt._A.block(start, Params::quadratic_control::nP(), Params::quadratic_control::nP(), Params::quadratic_control::nS()) = Eigen::Matrix<double, Params::quadratic_control::nP(), Params::quadratic_control::nS()>::Zero();
 
                             _opt._lbA.segment(start, Params::quadratic_control::nP()) = _model->positionLower() - _pstate._x;
                             _opt._ubA.segment(start, Params::quadratic_control::nP()) = _model->positionUpper() - _pstate._x;
