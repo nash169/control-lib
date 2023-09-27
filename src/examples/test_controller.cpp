@@ -22,44 +22,60 @@
     SOFTWARE.
 */
 
-#include <control_lib/controllers/Feedback.hpp>
-#include <control_lib/controllers/LinearDynamics.hpp>
+// #include <control_lib/controllers/Feedback.hpp>
+// #include <control_lib/controllers/LinearDynamics.hpp>
 
-#include <control_lib/spatial/R.hpp>
-#include <control_lib/spatial/SE.hpp>
-#include <control_lib/spatial/SO.hpp>
+// #include <control_lib/spatial/R.hpp>
+// #include <control_lib/spatial/SE.hpp>
+// #include <control_lib/spatial/SO.hpp>
+
+#include <control_lib/spatial/SpecialOrthogonal.hpp>
 
 #include <iostream>
 
 using namespace control_lib;
 
-struct Params {
-    struct controller : public defaults::controller {
-    };
+// struct Params {
+//     struct controller : public defaults::controller {
+//     };
 
-    struct feedback : public defaults::feedback {
-    };
+//     struct feedback : public defaults::feedback {
+//     };
 
-    struct linear_dynamics : public defaults::linear_dynamics {
-    };
+//     struct linear_dynamics : public defaults::linear_dynamics {
+//     };
+// };
+
+template <typename Space>
+struct State {};
+
+// Special Orthogonal group specialization
+template <size_t N, bool Left>
+struct State<spatial::SpecialOrthogonal<N, Left>> {
+    /* rotation */
+    Eigen::Matrix<double, N, N> _x;
+
+    /* Tangent and cotangent plane elements (optionals) */
+    Eigen::Matrix<double, spatial::SpecialOrthogonal<N, Left>::dimension(), 1> _v, _a, _f;
 };
 
 int main(int argc, char const* argv[])
 {
-    // Referece state
-    Eigen::Vector3d xDes(0.365308, -0.0810892, 1.13717);
-    Eigen::Matrix3d oDes;
-    oDes << 0.591427, -0.62603, 0.508233,
-        0.689044, 0.719749, 0.0847368,
-        -0.418848, 0.300079, 0.857041;
-    spatial::SE<3> sDes(oDes, xDes);
+    State<spatial::SpecialOrthogonal<3>> state;
+    // // Referece state
+    // Eigen::Vector3d xDes(0.365308, -0.0810892, 1.13717);
+    // Eigen::Matrix3d oDes;
+    // oDes << 0.591427, -0.62603, 0.508233,
+    //     0.689044, 0.719749, 0.0847368,
+    //     -0.418848, 0.300079, 0.857041;
+    // spatial::SE<3> sDes(oDes, xDes);
 
-    // Current state
-    spatial::SE<3> sCurr(Eigen::Matrix3d::Identity(), Eigen::Vector3d::Zero());
+    // // Current state
+    // spatial::SE<3> sCurr(Eigen::Matrix3d::Identity(), Eigen::Vector3d::Zero());
 
-    controllers::LinearDynamics<Params, spatial::SE<3>> ctr1;
+    // controllers::LinearDynamics<Params, spatial::SE<3>> ctr1;
 
-    std::cout << ctr1.dimension() << std::endl;
+    // std::cout << ctr1.dimension() << std::endl;
     // ctr1.setReference(sDes);
     // std::cout << "Linear DS action" << std::endl;
     // std::cout << ctr1.action(sCurr).transpose() << std::endl;

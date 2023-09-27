@@ -2,6 +2,7 @@
 #define CONTROLLIB_SPATIAL_STATE_H
 
 #include <Eigen/Core>
+#include <control_lib/spatial/State>
 
 namespace control_lib {
     // Forward declaration of available manifolds
@@ -27,8 +28,8 @@ namespace control_lib {
     };
 
     // Special Euclidean group specialization
-    template <>
-    struct State<spatial::SE3> {
+    template <size_t N>
+    struct State<spatial::SE<N>> {
         State() = default;
 
         State(const Eigen::Vector3d& translation, const Eigen::Matrix3d& rotation)
@@ -51,8 +52,8 @@ namespace control_lib {
     };
 
     // Special Orthogonal group specialization
-    template <>
-    struct State<spatial::SO3> {
+    template <size_t N>
+    struct State<spatial::SO<N>> {
         /* rotation */
         Eigen::Matrix3d rot;
 
