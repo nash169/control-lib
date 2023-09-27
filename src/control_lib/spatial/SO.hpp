@@ -37,6 +37,9 @@ namespace control_lib {
             /* Default constructor */
             SO() = default;
 
+            /* Space dimension */
+            constexpr static size_t dimension() { return N * (N - 1) / 2; }
+
             /* Space elements difference */
             Eigen::Vector3d operator-(SO const& obj) const
             {
@@ -47,9 +50,6 @@ namespace control_lib {
                     // Right operation yields a tangent vector in the tangent space of the point itself
                     return obj.actInvRight(*this).logarithm();
             }
-
-            /* Space dimension */
-            constexpr static size_t dimension() { return N; }
 
             /* rotation */
             Eigen::Matrix<double, N, N> _rot;
