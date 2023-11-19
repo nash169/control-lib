@@ -91,7 +91,7 @@ namespace control_lib {
             QuadraticControl& stateReference(const Eigen::Ref<const Eigen::Matrix<double, Params::quadratic_control::nP(), 1>>& reference)
             {
                 auto gradientVector = [&, reference]() {
-                    _opt._g.segment(0, Params::quadratic_control::nP()) = -2 * _opt._H.block(0, 0, Params::quadratic_control::nP(), Params::quadratic_control::nP()) * reference;
+                    _opt._g.segment(0, Params::quadratic_control::nP()) = -_opt._H.block(0, 0, Params::quadratic_control::nP(), Params::quadratic_control::nP()) * reference;
                 };
 
                 _objectives.push_back(gradientVector);
@@ -112,7 +112,7 @@ namespace control_lib {
             {
                 if constexpr (Params::quadratic_control::nC()) {
                     auto gradientVector = [&, reference]() {
-                        _opt._g.segment(Params::quadratic_control::nP(), Params::quadratic_control::nC()) = -2 * _opt._H.block(Params::quadratic_control::nP(), Params::quadratic_control::nP(), Params::quadratic_control::nC(), Params::quadratic_control::nC()) * reference;
+                        _opt._g.segment(Params::quadratic_control::nP(), Params::quadratic_control::nC()) = -_opt._H.block(Params::quadratic_control::nP(), Params::quadratic_control::nP(), Params::quadratic_control::nC(), Params::quadratic_control::nC()) * reference;
                     };
 
                     _objectives.push_back(gradientVector);
